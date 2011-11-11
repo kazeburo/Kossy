@@ -366,7 +366,7 @@ __END__
 
 =head1 NAME
 
-Kossy -
+Kossy - Sinatra like simple waf 
 
 =head1 SYNOPSIS
 
@@ -374,7 +374,7 @@ Kossy -
 
 =head1 DESCRIPTION
 
-Kossy is
+Kossy is Sinatra like simple waf 
 
 =head1 AUTHOR
 
