@@ -9,6 +9,7 @@ use Router::Simple;
 use Cwd qw//;
 use File::Basename qw//;
 use Text::Xslate;
+use HTML::FillInForm::Lite qw//;
 use Try::Tiny;
 use Encode;
 use Class::Accessor::Lite (
@@ -48,10 +49,20 @@ sub build_app {
     $router->connect(@{$_}) for @{$self->_router};
 
     #xslate
+    my $fif = HTML::FillInForm::Lite->new();
     my $tx = Text::Xslate->new(
         path => [ $self->root_dir . '/views' ],
         input_layer => ':utf8',
-        module => ['Text::Xslate::Bridge::TT2Like']
+        module => ['Text::Xslate::Bridge::TT2Like'],
+        function => {
+            fillinform => sub {
+                my $q = shift;
+                return sub {
+                    my ($html) = @_;
+                    return Text::Xslate::mark_raw( $fif->fill( \$html, $q ) );
+                }
+            }
+        },
     );
 
     sub {
@@ -366,15 +377,174 @@ __END__
 
 =head1 NAME
 
-Kossy - Sinatra like simple waf 
+Kossy - Sinatra-ish simple waf 
 
 =head1 SYNOPSIS
 
+  % kossy-setup MyApp
+  % cd MyApp
+  % plackup app.psgi
+
+  ## lib/MyApp/Web.pm
+
   use Kossy;
+
+  get '/' => sub {
+      my ( $self, $c )  = @_;
+      $c->render('index.tx', { greeting => "Hello!" });
+  };
+
+  1;
+
+  ## views/index.tx
+  : cascade base
+  : around content -> {
+    <: $greeting :>
+  : }
 
 =head1 DESCRIPTION
 
-Kossy is Sinatra like simple waf 
+Kossy is Sinatra-ish simple waf, which is based upon Plack, Router::Simple and Text::Xslate.
+
+=head1 C<<Kossy>> class
+
+Kossy exports some methods to building application
+
+=head2 CLASS METHODS for C<<Kossy>> class
+
+=over 4
+
+=item my $kossy = Kossy->new($root_dir);
+
+Create instance of the application object.
+
+=back
+
+=head2 OBJECT METHODS for C<<Kossy>> class
+
+=over 4
+
+=item my $root_dir = $kossy->root_dir();
+
+accessor to root directory of the application
+
+=item my $app = $kossy->psgi();
+
+return PSGI application
+
+=back
+
+=head2 DISPATCHER METHODS for C<<Kossy>> class
+
+=over 4
+
+=item filter
+
+makes application wrapper like plack::middlewares.
+
+  filter 'set_title' => sub {
+      my $app:CODE = shift;
+      sub {
+          my ( $self:Kossy, $c:Kossy::Connection )  = @_;
+          $c->stash->{site_name} = __PACKAGE__;
+          $app->($self,$c);
+      }
+  };
+
+=item get path:String => [[filters] =>] CODE
+=item post path:String => [[filters] =>] CODE
+
+setup router and dispatch code
+
+  get '/' => [qw/set_title/] => sub {
+      my ( $self:Kossy, $c:Kossy::Connection )  = @_;
+      $c->render('index.tx', { greeting => "Hello!" });
+  };
+  
+  get '/json' => sub {
+      my ( $self:Kossy, $c:Kossy::Connection )  = @_;
+      $c->render_json({ greeting => "Hello!" });
+  };
+
+dispatch code shall return Kossy::Response object or PSGI response ArrayRef or String.
+
+=back
+
+=head1 Kossy::Connection class
+
+per-request object, herds request and response
+
+=head2 OBJECT METHODS for Kossy::Connection class
+
+=over 4
+
+=item req:Kossy::Request
+
+=item res:Kossy::Response
+
+=item stash:HashRef
+
+=item args:HashRef
+
+Router::Simple->match result
+
+=item halt(status_code, message)
+
+die and response immediately
+
+=item redirect($uri,status_code): Kossy::Response
+
+=item render($file,$args): Kossy::Response
+
+calls Text::Xslate->render makes response. template files are searching in root_dir/views directory
+
+template syntax is Text::Xslate::Syntax::Kolon, can use Kossy::Connection object and fillinform block.
+
+   ## template.tx
+   : block form |  fillinform( $c.req ) -> {
+   <head>
+   <title><: $c.stash.title :></title>
+   </head>
+   <body>
+   <form action="<: $c.req.uri_for('/post') :>">
+   <input type="text" size="10" name="title" />
+   <textarea name="body" rows="20" cols="90"></textarea>
+   </form>
+   </body>
+   : }
+
+=item render_json($args): Kossy::Response
+
+serializes arguments with JSON and makes response
+
+=back
+
+=head1 Kossy::Request
+
+This class is child class of Plack::Request, decode query/body parameters automatically. Return value of $req->param(), $req->body_parameters, etc. is the decoded value.
+
+=head2 OBJECT METHODS for Kossy::Request class
+
+=over 4
+
+=item uri_for($path,$args):String
+
+build absolute URI with path and $args
+
+  my $uri = $c->req->uri_for('/login',[ arg => 'Hello']);  
+
+=item body_parameters_raw
+=item query_parameters_raw
+=item parameters_raw
+=item param_raw
+
+These methods are the accessor to raw values. 'raw' means the value is not decoded.
+
+=back
+
+=head1 Kossy::Response
+
+This class is child class of Plack::Response
 
 =head1 AUTHOR
 

@@ -91,7 +91,7 @@ get '/' => [qw/set_title/] => sub {
     $c->render('index.tx', { greeting => "Hello!" });
 };
 
-get '/json' => [qw/set_title/] => sub {
+get '/json' => sub {
     my ( $self, $c )  = @_;
     $c->render_json({ greeting => "Hello!" });
 };

@@ -9,3 +9,9 @@ __DATA__
 Masahiro Nagano
 kazeburo {at} gmail.com
 Kossy
+JSON
+PSGI
+Plack
+fillinform
+ish
+waf
