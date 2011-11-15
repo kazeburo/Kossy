@@ -406,11 +406,11 @@ Kossy - Sinatra-ish simple waf
 
 Kossy is Sinatra-ish simple waf, which is based upon Plack, Router::Simple and Text::Xslate.
 
-=head1 C<<Kossy>> class
+=head1 Kossy class
 
 Kossy exports some methods to building application
 
-=head2 CLASS METHODS for C<<Kossy>> class
+=head2 CLASS METHODS for Kossy class
 
 =over 4
 
@@ -420,7 +420,7 @@ Create instance of the application object.
 
 =back
 
-=head2 OBJECT METHODS for C<<Kossy>> class
+=head2 OBJECT METHODS for Kossy class
 
 =over 4
 
@@ -434,7 +434,7 @@ return PSGI application
 
 =back
 
-=head2 DISPATCHER METHODS for C<<Kossy>> class
+=head2 DISPATCHER METHODS for Kossy class
 
 =over 4
 
@@ -452,6 +452,7 @@ makes application wrapper like plack::middlewares.
   };
 
 =item get path:String => [[filters] =>] CODE
+
 =item post path:String => [[filters] =>] CODE
 
 setup router and dispatch code
@@ -534,8 +535,11 @@ build absolute URI with path and $args
   my $uri = $c->req->uri_for('/login',[ arg => 'Hello']);  
 
 =item body_parameters_raw
+
 =item query_parameters_raw
+
 =item parameters_raw
+
 =item param_raw
 
 These methods are the accessor to raw values. 'raw' means the value is not decoded.
