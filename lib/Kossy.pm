@@ -393,18 +393,31 @@ Kossy - Sinatra-ish simple waf
   % kossy-setup MyApp
   % cd MyApp
   % plackup app.psgi
-
+  
   ## lib/MyApp/Web.pm
-
+  
   use Kossy;
-
+  
   get '/' => sub {
       my ( $self, $c )  = @_;
       $c->render('index.tx', { greeting => "Hello!" });
   };
-
+  
+  get '/json' => sub {
+      my ( $self, $c )  = @_;
+      my $result = $c->req->validator([
+          'q' => {
+              default => 'Hello',
+              rule => [
+                  [['CHOICE',qw/Hello Bye/],'Hello or Bye']
+              ],
+          }
+      ]);
+      $c->render_json({ greeting => $result->valid->get('q') });
+  };
+  
   1;
-
+  
   ## views/index.tx
   : cascade base
   : around content -> {
