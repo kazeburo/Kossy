@@ -15,3 +15,4 @@ Plack
 fillinform
 ish
 waf
+validator

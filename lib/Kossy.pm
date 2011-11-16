@@ -18,6 +18,7 @@ use Class::Accessor::Lite (
 );
 use base qw/Exporter/;
 
+
 our $VERSION = 0.01;
 our @EXPORT = qw/new root_dir psgi build_app _router _connect get post filter wrap_filter/;
 
@@ -289,6 +290,7 @@ use warnings;
 use parent qw/Plack::Request/;
 use Hash::MultiValue;
 use Encode;
+use Kossy::Validator;
 
 sub body_parameters {
     my ($self) = @_;
@@ -352,6 +354,13 @@ sub uri_for {
      $uri->query_form(@$args) if $args;
      $uri;
 }
+
+sub validator {
+    my ($self, $rule) = @_;
+    Kossy::Validator->check($self,$rule);
+}
+
+1;
 
 package Kossy::Response;
 
@@ -533,6 +542,23 @@ This class is child class of Plack::Request, decode query/body parameters automa
 build absolute URI with path and $args
 
   my $uri = $c->req->uri_for('/login',[ arg => 'Hello']);  
+
+=item validator($rule):Kossy::Validaor::Result
+
+validate parameters using C<<Kossy::Validatar>>
+
+  my $result = $c->req->validator([
+    'q' => [['NOT_NULL','query must be defined']],
+    'level' => {
+        default => 'M',
+        rule => [
+            [['CHOICE',qw/L M Q H/],'invalid level char'],
+        ],
+    },
+  ]);
+
+  my $val = $result->valid('q');
+  my $val = $result->valid('level');
 
 =item body_parameters_raw
 
