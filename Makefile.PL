@@ -18,7 +18,7 @@ requires 'Class::Accessor::Lite';
 requires 'JSON';
 requires 'Test::More', 0.88;
 
-tests 't/*.t';
+tests 't/*.t t/*/*.t';
 author_tests 'xt';
 
 test_requires 'Test::More';

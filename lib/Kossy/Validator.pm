@@ -55,7 +55,7 @@ sub check {
         my $vals = ( $param =~ m!^@! ) ? \@vals : [$vals[-1]];
 
         if ( ref($rule->[$i+1]) && ref($rule->[$i+1]) eq 'HASH' ) {
-            if ( $param !~ m!^@! && !$VALIDATOR{NOT_NULL}->($req,$vals)  && exists $rule->[$i+1]->{default} ) {
+            if ( $param !~ m!^@! && !$VALIDATOR{NOT_NULL}->($req,$vals->[0])  && exists $rule->[$i+1]->{default} ) {
                 my $default = $rule->[$i+1]->{default};
                 $vals = [$default];
             }
