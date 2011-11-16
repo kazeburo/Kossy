@@ -163,11 +163,87 @@ Kossy::Validator - form validator
 
 =head1 SYNOPSIS
 
-  use Kossy
+  use Kossy::Validator
+  my $req = Plack::Request->new($env);
+  
+  my $result = Kossy::Validator->check($req, [
+        'q' => [['NOT_NULL','query must be defined']],
+        'level' => {
+            default => 'M',
+            rule => [
+                [['CHOICE',qw/L M Q H/],'invalid level char'],
+            ],
+        },
+        '@area' => {
+            rule => [
+                ['UINT','area must be uint'],
+                [['CHOICE', (0..40)],'invalid area'],
+            ],
+        },
+  ]);
+
+  $result->has_error:Flag
+  $result->messages:ArrayRef[`Str]
+
+  my $val = $result->valid('q');
+  my @val = $result->valid('area');
+
+  my $hash = $result->valid:Hash::MultiValue;
 
 =head1 DESCRIPTION
 
-form validator
+minimalistic form validator
+
+=head1 VALIDATORS
+
+=over 4
+
+=item NOT_NULL
+
+=item CHOICE
+
+  ['CHOICE',qw/dog cat/]
+
+=item UINT
+
+unsigned int
+
+=item NATURAL
+
+natural number
+
+=item @SELECTED_NUM
+
+  ['@SELECTED_NUM',min,max]
+
+=back
+
+=head1 ADDING VALIDATORS
+
+add to %Kossy::Validator::VALIDATOR
+
+  local $Kossy::Validator::VALIDATOR{MYRULE} = sub {
+      my ($req, $val, @args) = @_;
+      return 1;
+  };
+
+  local $Kossy::Validator::VALIDATOR{'@MYRULE2'} = sub {
+      my ($req, $vals, $num) = @_;
+      return if @$vals != $num;
+      return if uniq(@$vals) == $num;
+  };
+
+  Kossy::Validator->check($req,[
+      key1 => [['MYRULE','my rule']],
+      '@key2' => {
+         rule => [
+             [['@MYRULE2',3], 'select 3 items'],
+             [['CHOICE',qw/1 2 3 4 5/], 'invalid']
+         ],
+      }
+  ]);
+
+if rule name start with '@', all values are passed as ArrayRef instead of last value.
 
 =head1 AUTHOR
 
