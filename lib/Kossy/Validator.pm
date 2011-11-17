@@ -31,9 +31,15 @@ our %VALIDATOR = (
         $val =~ /^\d+$/ && $val > 0;
     },
     '@SELECTED_NUM' => sub {
-        my ($vals,@args) = @_;
+        my ($req,$vals,@args) = @_;
         my ($min,$max) = @args;
         scalar(@$vals) >= $min && scalar(@$vals) <= $max
+    },
+    '@SELECTED_UNIQ' => sub {
+        my ($req,$vals) = @_;
+        my %vals;
+        $vals{$_} = 1 for @$vals;
+        scalar(@$vals) == scalar keys %vals;
     },
 );
 
@@ -70,6 +76,16 @@ sub check {
             if ( ref($constraint->[0]) eq 'ARRAY' ) {
                 my @constraint = @{$constraint->[0]};
                 my $constraint_name = shift @constraint;
+                if ( ref($constraint_name) && ref($constraint_name) eq 'CODE' ) {
+                    for my $val ( @$vals ) {
+                        if ( !$constraint_name->($req, $val, @constraint) ) {
+                            push @errors, $constraint->[1];
+                            $error=1;
+                            last PARAM_CONSTRAINT;
+                        }
+                    }
+                    next PARAM_CONSTRAINT;
+                }
                 die "constraint:$constraint_name not found" if ! exists $VALIDATOR{$constraint_name};
                 if ( $constraint_name =~ m!^@! ) {
                     if ( !$VALIDATOR{$constraint_name}->($req,$vals,@constraint) ) {
@@ -89,10 +105,8 @@ sub check {
                 }
             }
             elsif ( ref($constraint->[0]) eq 'CODE' ) {
-                my @constraint = @{$constraint->[0]};
-                my $code = shift @constraint;
                 for my $val ( @$vals ) {
-                    if ( !$code->($req, $val, @constraint) ) {
+                    if ( !$constraint->[0]->($req, $val) ) {
                         push @errors, $constraint->[1];
                         $error=1;
                         last PARAM_CONSTRAINT;
@@ -101,11 +115,20 @@ sub check {
             }
             else {
                 die "constraint:".$constraint->[0]." not found" if ! exists $VALIDATOR{$constraint->[0]};
-                for my $val ( @$vals ) {
-                    if ( ! $VALIDATOR{$constraint->[0]}->($req, $val) ) {
+                if ( $constraint->[0] =~ m!^@! ) {
+                    if ( !$VALIDATOR{$constraint->[0]}->($req,$vals) ) {
                         push @errors, $constraint->[1];
                         $error=1;
                         last PARAM_CONSTRAINT;
+                    }                    
+                }
+                else {
+                    for my $val ( @$vals ) {
+                        if ( !$VALIDATOR{$constraint->[0]}->($req, $val) ) {
+                            push @errors, $constraint->[1];
+                            $error=1;
+                            last PARAM_CONSTRAINT;
+                        }
                     }
                 }
             }
@@ -216,7 +239,29 @@ natural number
 
   ['@SELECTED_NUM',min,max]
 
+=item @SELECTED_UNIQ
+
+all selected values are unique
+
 =back
+
+=head1 CODEref VALIDATOR
+
+  my $result = Kossy::Validator->check($req,[
+      'q' => [
+          [sub{
+              my ($req,$val) = @_;
+          },'invalid']
+      ],
+  ]);
+  
+  my $result = Kossy::Validator->check($req,[
+      'q' => [
+          [[sub{
+              my ($req,$val,@args) = @_;
+          },0,1],'invalid']
+      ],
+  ]);
 
 =head1 ADDING VALIDATORS
 
