@@ -374,7 +374,8 @@ sub _body {
     my $body = $self->body;
        $body = [] unless defined $body;
     if (!ref $body or Scalar::Util::blessed($body) && overload::Method($body, q("")) && !$body->can('getline')) {
-        return [ Encode::encode_utf8($body) ];
+        return [ Encode::encode_utf8($body) ] if Encode::is_utf8($body);
+        return [ $body ];
     } else {
         return $body;
     }
