@@ -275,7 +275,7 @@ sub render {
 sub render_json {
     my $self = shift;
     my $obj = shift;
-    my $body = JSON::encode_json($obj);
+    my $body = JSON->new->encode($obj);
     $self->res->status( 200 );
     $self->res->content_type('application/json; charset=UTF-8');
     $self->res->body( $body );
