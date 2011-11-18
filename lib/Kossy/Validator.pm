@@ -20,6 +20,11 @@ our %VALIDATOR = (
         }
         return;
     },
+    INT => sub {
+        my ($req,$val) = @_;
+        return if not defined($val);
+        $val =~ /^\-?[\d]+$/;
+    },
     UINT => sub {
         my ($req,$val) = @_;
         return if not defined($val);
@@ -226,6 +231,10 @@ minimalistic form validator
 =item CHOICE
 
   ['CHOICE',qw/dog cat/]
+
+=item INT
+
+int
 
 =item UINT
 
