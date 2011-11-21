@@ -84,7 +84,7 @@ sub check {
                 if ( ref($constraint_name) && ref($constraint_name) eq 'CODE' ) {
                     for my $val ( @$vals ) {
                         if ( !$constraint_name->($req, $val, @constraint) ) {
-                            push @errors, $constraint->[1];
+                            push @errors, { param => $param_name, message => $constraint->[1] };
                             $error=1;
                             last PARAM_CONSTRAINT;
                         }
@@ -94,7 +94,7 @@ sub check {
                 die "constraint:$constraint_name not found" if ! exists $VALIDATOR{$constraint_name};
                 if ( $constraint_name =~ m!^@! ) {
                     if ( !$VALIDATOR{$constraint_name}->($req,$vals,@constraint) ) {
-                        push @errors, $constraint->[1];
+                        push @errors, { param => $param_name, message => $constraint->[1] };
                         $error=1;
                         last PARAM_CONSTRAINT;
                     }                    
@@ -102,7 +102,7 @@ sub check {
                 else {
                     for my $val ( @$vals ) {
                         if ( !$VALIDATOR{$constraint_name}->($req,$val,@constraint) ) {
-                            push @errors, $constraint->[1];
+                            push @errors, { param => $param_name, message => $constraint->[1] };
                             $error=1;
                             last PARAM_CONSTRAINT;
                         }
@@ -112,7 +112,7 @@ sub check {
             elsif ( ref($constraint->[0]) eq 'CODE' ) {
                 for my $val ( @$vals ) {
                     if ( !$constraint->[0]->($req, $val) ) {
-                        push @errors, $constraint->[1];
+                        push @errors, { param => $param_name, message => $constraint->[1] };
                         $error=1;
                         last PARAM_CONSTRAINT;
                     }
@@ -122,7 +122,7 @@ sub check {
                 die "constraint:".$constraint->[0]." not found" if ! exists $VALIDATOR{$constraint->[0]};
                 if ( $constraint->[0] =~ m!^@! ) {
                     if ( !$VALIDATOR{$constraint->[0]}->($req,$vals) ) {
-                        push @errors, $constraint->[1];
+                        push @errors, { param => $param_name, message => $constraint->[1] };
                         $error=1;
                         last PARAM_CONSTRAINT;
                     }                    
@@ -130,7 +130,7 @@ sub check {
                 else {
                     for my $val ( @$vals ) {
                         if ( !$VALIDATOR{$constraint->[0]}->($req, $val) ) {
-                            push @errors, $constraint->[1];
+                            push @errors, { param => $param_name, message => $constraint->[1] };
                             $error=1;
                             last PARAM_CONSTRAINT;
                         }
@@ -164,8 +164,14 @@ sub has_error {
 
 sub messages {
     my $self = shift;
-    my @errors = @{$self->{errors}};
+    my @errors = map { $_->{message} } @{$self->{errors}};
     \@errors;
+}
+
+sub errors {
+    my $self = shift;
+    my %errors = map { $_->{param} => $_->{message} } @{$self->{errors}};
+    \%errors;
 }
 
 sub valid {
