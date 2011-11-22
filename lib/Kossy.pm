@@ -19,7 +19,7 @@ use Class::Accessor::Lite (
 use base qw/Exporter/;
 
 
-our $VERSION = 0.01;
+our $VERSION = 0.02;
 our @EXPORT = qw/new root_dir psgi build_app _router _connect get post filter wrap_filter/;
 
 sub new {
@@ -54,7 +54,7 @@ sub build_app {
     my $tx = Text::Xslate->new(
         path => [ $self->root_dir . '/views' ],
         input_layer => ':utf8',
-        module => ['Text::Xslate::Bridge::TT2Like'],
+        module => ['Text::Xslate::Bridge::TT2Like','Number::Format' => [':subs']],
         function => {
             fillinform => sub {
                 my $q = shift;

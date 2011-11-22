@@ -1,4 +1,7 @@
 Revision history for Perl extension Kossy
 
+0.02    Fri Nov 11 10:35:14 2011
+        - added Number::Format to Xslate default functions.
+
 0.01    Fri Nov 11 10:35:14 2011
         - original version
