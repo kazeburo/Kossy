@@ -1,5 +1,10 @@
 Revision history for Perl extension Kossy
 
+0.03    Mon Nov 28 19:20:09 2011
+        - render_json security staff.
+        - added document
+        - added router method for dispach other than GET and POST
+
 0.02    Fri Nov 11 10:35:14 2011
         - added Number::Format to Xslate default functions.
 

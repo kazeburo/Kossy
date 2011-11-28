@@ -19,8 +19,8 @@ use Class::Accessor::Lite (
 use base qw/Exporter/;
 
 
-our $VERSION = 0.02;
-our @EXPORT = qw/new root_dir psgi build_app _router _connect get post filter wrap_filter/;
+our $VERSION = 0.03;
+our @EXPORT = qw/new root_dir psgi build_app _router _connect get post router filter _wrap_filter/;
 
 sub new {
     my $class = shift;
@@ -80,7 +80,6 @@ sub build_app {
             $router->match($env)
         }
         catch {
-            warn $_;
             $c->halt(400,'unexpected character in request');
         };
 
@@ -95,8 +94,11 @@ sub build_app {
                 my $res = $code->($self, $c);
                 Carp::croak "Undefined Response" if !$res;
                 my $res_t = ref($res) || '';
-                if ( Scalar::Util::blessed $res && $res->isa('Plack::Response') ) {
-                    $response = $res;
+                if ( Scalar::Util::blessed $res && $res->isa('Kossy::Response') ) {
+                    $response = $res;;
+                }
+                elsif ( Scalar::Util::blessed $res && $res->isa('Plack::Response') ) {
+                    $response = bless $res, 'Kossy::Response';
                 }
                 elsif ( $res_t eq 'ARRAY' ) {
                     $response = Kossy::Response->new(@$res);
@@ -112,7 +114,7 @@ sub build_app {
             };
 
             for my $filter ( reverse @$filters ) {
-                $app = $self->wrap_filter($filter,$app);
+                $app = $self->_wrap_filter($filter,$app);
             }
 
             return try {
@@ -124,7 +126,7 @@ sub build_app {
                 die $_;
             };
         }
-        return [404, [content_type=>'text/html'], ['Not Found']];
+        return Kossy::Exception->new(404)->response;
     };
 }
 
@@ -145,6 +147,7 @@ sub _router {
 sub _connect {
     my $class = shift;
     my ( $methods, $pattern, $filter, $code ) = @_;
+    $methods = ref($methods) ? $methods : [$methods];
     if (!$code) {
         $code = $filter;
         $filter = [];
@@ -166,6 +169,11 @@ sub post {
     $class->_connect( ['POST'], @_  );
 }
 
+sub router {
+    my $class = caller;
+    $class->_connect( @_  );
+}
+
 my $_FILTER={};
 sub filter {
     my $class = caller;
@@ -178,7 +186,7 @@ sub filter {
     $_FILTER->{$class};
 }
 
-sub wrap_filter {
+sub _wrap_filter {
     my $klass = shift;
     my $class = ref $klass ? ref $klass : $klass; 
     if ( !$_FILTER->{$class} ) {
@@ -228,7 +236,7 @@ sub response {
         push(@headers, Location => $loc);
     }
 
-    return [ $code, \@headers, [ $message ] ];
+    return Kossy::Response->new($code, \@headers, [$message ])->finalize;
 }
 
 package Kossy::Connection;
@@ -240,6 +248,14 @@ use Class::Accessor::Lite (
     rw => [qw/req res stash args tx debug/]
 );
 use JSON qw//;
+
+my $_JSON = JSON->new()->ascii(1);
+
+my %_ESCAPE = (
+    '+' => '\\u002b', # do not eval as UTF-7
+    '<' => '\\u003c', # do not eval as HTML
+    '>' => '\\u003e', # ditto.
+);
 
 *request = \&req;
 *response = \&res;
@@ -275,9 +291,30 @@ sub render {
 sub render_json {
     my $self = shift;
     my $obj = shift;
-    my $body = JSON->new->encode($obj);
+
+    # defense from JSON hijacking
+    # Copy from ::Plugin::Web::JSON
+    if ( !$self->req->header('X-Requested-With')  && 
+         ($self->req->user_agent||'') =~ /android/i &&
+         defined $self->req->header('Cookie') &&
+         ($self->req->method||'GET') eq 'GET'
+    ) {
+        $self->halt(403,"Your request is maybe JSON hijacking.\nIf you are not a attacker, please add 'X-Requested-With' header to each request.");
+    }
+
+    # for IE7 JSON venularity.
+    # see http://www.atmarkit.co.jp/fcoding/articles/webapp/05/webapp05a.html
+    # Copy from ::Plugin::Web::JSON
+    my $body = $_JSON->encode($obj);
+    $body =~ s!([+<>])!$_ESCAPE{$1}!g;
+
+    if ( ( $self->req->user_agent || '' ) =~ m/Safari/ ) {
+        $body = "\xEF\xBB\xBF" . $body;
+    }
+
     $self->res->status( 200 );
     $self->res->content_type('application/json; charset=UTF-8');
+    $self->res->header( 'X-Content-Type-Options' => 'nosniff' ); # defense from XSS
     $self->res->body( $body );
     $self->res;    
 }
@@ -369,6 +406,13 @@ use warnings;
 use parent qw/Plack::Response/;
 use Encode;
 
+sub finalize {
+    my $self = shift;
+    $self->header('X-Frame-Options'=>'DENY');
+    $self->header('X-XSS-Protection'=>'1');
+    $self->SUPER::finalize();
+}
+
 sub _body {
     my $self = shift;
     my $body = $self->body;
@@ -387,7 +431,7 @@ __END__
 
 =head1 NAME
 
-Kossy - Sinatra-ish simple waf 
+Kossy - Sinatra-ish Simple and Clean web application framework
 
 =head1 SYNOPSIS
 
@@ -427,7 +471,7 @@ Kossy - Sinatra-ish simple waf
 
 =head1 DESCRIPTION
 
-Kossy is Sinatra-ish simple waf, which is based upon Plack, Router::Simple and Text::Xslate.
+Kossy is Sinatra-ish Simple and Clean web application framework, which is based upon L<Plack>, L<Router::Simple> and L<Text::Xslate>. That's suitable for small application and lightning fast development.
 
 =head1 Kossy class
 
@@ -492,6 +536,15 @@ setup router and dispatch code
 
 dispatch code shall return Kossy::Response object or PSGI response ArrayRef or String.
 
+=item router 'HTTP_METHOD'|['METHOD'[,'METHOD']] => path:String => [[filters] =>] CODE
+
+adds routing rule other than GET and POST
+
+  router 'PUT' => '/put' => sub {
+      my ( $self:Kossy, $c:Kossy::Connection )  = @_;
+      $c->render_json({ greeting => "Hello!" });
+  };
+
 =back
 
 =head1 Kossy::Connection class
@@ -537,9 +590,27 @@ template syntax is Text::Xslate::Syntax::Kolon, can use Kossy::Connection object
    </body>
    : }
 
+also can use L<Text::Xslate::Bridge::TT2Like> and L<Number::Format> methods in your template
+
 =item render_json($args): Kossy::Response
 
 serializes arguments with JSON and makes response
+
+This method escapes '<', '>', and '+' characters by "\uXXXX" form. Browser don't detects the JSON as HTML. And also this module outputs "X-Content-Type-Options: nosniff" header for IEs.
+
+render_json have a JSON hijacking detection feature same as L<Amon2::Plugin::Web::JSON>. This returns "403 Forbidden" response if following pattern request.
+
+=over 8
+
+=item The request have 'Cookie' header.
+
+=item The request doesn't have 'X-Requested-With' header.
+
+=item The request contains /android/i string in 'User-Agent' header.
+
+=item Request method is 'GET'
+
+=back
 
 =back
 
@@ -559,7 +630,7 @@ build absolute URI with path and $args
 
 =item validator($rule):Kossy::Validaor::Result
 
-validate parameters using C<<Kossy::Validatar>>
+validate parameters using L<Kossy::Validatar>
 
   my $result = $c->req->validator([
     'q' => [['NOT_NULL','query must be defined']],
@@ -595,6 +666,14 @@ This class is child class of Plack::Response
 Masahiro Nagano E<lt>kazeburo {at} gmail.comE<gt>
 
 =head1 SEE ALSO
+
+Kossy is small waf, that has only 400 lines code. so easy to reading framework code and customize it. Sinatra-ish router, build-in templating, validators and zero-configuration features are suitable for small application and fast development.
+
+L<Amon2::Lite>
+
+L<Mojolicious::Lite>
+
+L<Dancer>
 
 =head1 LICENSE
 
