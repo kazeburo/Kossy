@@ -17,6 +17,7 @@ requires 'Try::Tiny', 0.09;
 requires 'Class::Accessor::Lite';
 requires 'JSON';
 requires 'Number::Format';
+requires 'Data::Section::Simple';
 requires 'Test::More', 0.88;
 
 tests 't/*.t t/*/*.t';

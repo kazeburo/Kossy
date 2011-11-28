@@ -2,11 +2,14 @@
 
 use strict;
 use warnings;
+use utf8;
 use File::Path qw/mkpath/;
 use Getopt::Long;
 use Pod::Usage;
 use Text::Xslate;
 use Data::Section::Simple qw(get_data_section);
+use MIME::Base64;
+use Kossy::Assets;
 
 GetOptions(
     'help' => \my $help,
@@ -48,6 +51,20 @@ foreach my $fkey ( keys %{$files} ) {
     print "writing $path\n";
     open(my $fh, '>', $path);
     print $fh $content
+}
+
+my $assets_reader = Data::Section::Simple->new('Kossy::Assets');
+my $assets = $assets_reader->get_data_section;
+foreach my $fkey ( keys %$assets ) {
+    my $path = $fkey;
+    my $content = $assets->{$path};
+    if ( $path =~ m!\.b64$! ) {
+        $path =~ s/\.b64$//g;
+        $content = decode_base64($content);
+    }
+    print "writing $path\n";
+    open(my $fh, '>', $path);
+    print $fh $content;
 }
 
 =head1 SYNOPSIS
@@ -111,18 +128,81 @@ get '/json' => sub {
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="utf-8">
-<title><: $c.stash.site_name :></title>
+<link rel="shortcut icon" href="<: $c.req.uri_for('/favicon.ico') :>" type="image/vnd.microsoft.icon" />
+<link rel="stylesheet" href="<: $c.req.uri_for('/css/bootstrap.min.css') :>">
+<title>[% module %]</title>
+<style type='text/css'>
+body {
+  background-color: #fff;
+  position: relative;
+}
+section {
+  padding-top: 60px;
+}
+section > .row {
+  margin-bottom: 10px;
+}
+.footer {
+  background-color: #eee;
+  min-width: 940px;
+  padding: 30px 0;
+  text-shadow: 0 1px 0 #fff;
+  border-top: 1px solid #e5e5e5;
+  -webkit-box-shadow: inset 0 5px 15px rgba(0,0,0,.025);
+     -moz-box-shadow: inset 0 5px 15px rgba(0,0,0,.025);
+/*          box-shadow: inset 0 5px 15px rgba(0,0,0,.025);
+*/}
+</style>
 </head>
 <body>
+
+<div class="topbar">
+<div class="topbar-inner">
+<div class="container">
+<a class="brand" href="<: $c.req.uri_for('/') :>">[% module %]</a>
+<ul class="nav">
+<li><a href="<: $c.req.uri_for('/') :>">Home</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="container">
+<section>
+<div class="page-header">
+: block page_header -> { }
+</div>
+<div class="row">
+<div class="span16">
 : block content -> { }
+</div>
+</div>
+</section>
+</div>
+
+<footer class="footer">
+<div class="container">
+<p class="pull-right"><a href="#">Back to top</a></p>
+<p>Powered by Kossy</p>
+</div>
+</footer>
+
+<script type="text/javascript" src="<: $c.req.uri_for('/js/jquery-1.7.1.min.js') :>"></script>
+<script type="text/javascript" src="<: $c.req.uri_for('/js/bootstrap-modal.js') :>"></script>
+<script type="text/javascript" src="<: $c.req.uri_for('/js/bootstrap-alerts.js') :>"></script>
 </body>
 </html>
 
 @@ views/index.tx
 : cascade base
-: around content -> {
-<: $greeting :>
+: around page_header -> {
+<h1><: $c.stash.site_name :></h1>
 : }
+
+: around content -> {
+<h2><: $greeting :></h2>
+: }
+
 
 @@ app.psgi
 use FindBin;

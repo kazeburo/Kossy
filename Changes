@@ -1,5 +1,8 @@
 Revision history for Perl extension Kossy
 
+0.04    Tue Nov 29 01:04:55 2011
+        - addes Assets for setup
+
 0.03    Mon Nov 28 19:20:09 2011
         - render_json security staff.
         - added document
