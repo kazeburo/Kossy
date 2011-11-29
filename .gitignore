@@ -10,4 +10,5 @@ nytprof.out
 MANIFEST.bak
 *.sw[po]
 *~
+*.tar.gz
 
