@@ -11,6 +11,8 @@ use Data::Section::Simple qw(get_data_section);
 use MIME::Base64;
 use Kossy::Assets;
 
+require Kossy;
+
 GetOptions(
     'help' => \my $help,
 ) or pod2usage(0);
