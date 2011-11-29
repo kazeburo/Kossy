@@ -293,7 +293,7 @@ sub render_json {
     my $obj = shift;
 
     # defense from JSON hijacking
-    # Copy from ::Plugin::Web::JSON
+    # Copy from Amon2::Plugin::Web::JSON
     if ( !$self->req->header('X-Requested-With')  && 
          ($self->req->user_agent||'') =~ /android/i &&
          defined $self->req->header('Cookie') &&
@@ -304,7 +304,7 @@ sub render_json {
 
     # for IE7 JSON venularity.
     # see http://www.atmarkit.co.jp/fcoding/articles/webapp/05/webapp05a.html
-    # Copy from ::Plugin::Web::JSON
+    # Copy from Amon2::Plugin::Web::JSON
     my $body = $_JSON->encode($obj);
     $body =~ s!([+<>])!$_ESCAPE{$1}!g;
 
@@ -431,7 +431,7 @@ __END__
 
 =head1 NAME
 
-Kossy - Sinatra-ish Simple and Clean web application framework
+Kossy - Sinatra-ish Simple and Clear web application framework
 
 =head1 SYNOPSIS
 
@@ -471,7 +471,7 @@ Kossy - Sinatra-ish Simple and Clean web application framework
 
 =head1 DESCRIPTION
 
-Kossy is Sinatra-ish Simple and Clean web application framework, which is based upon L<Plack>, L<Router::Simple>, L<Text::Xslate> and build-in Form-Validator. That's suitable for small application and rapid development.
+Kossy is Sinatra-ish Simple and Clear web application framework, which is based upon L<Plack>, L<Router::Simple>, L<Text::Xslate> and build-in Form-Validator. That's suitable for small application and rapid development.
 
 =head1 Kossy class
 

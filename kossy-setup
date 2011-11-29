@@ -105,7 +105,7 @@ filter 'set_title' => sub {
 
 get '/' => [qw/set_title/] => sub {
     my ( $self, $c )  = @_;
-    $c->render('index.tx', { greeting => "Hello!" });
+    $c->render('index.tx', { greeting => "Hello" });
 };
 
 get '/json' => sub {
