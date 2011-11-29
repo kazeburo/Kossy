@@ -44,6 +44,7 @@ my $args = {
     module => $module,
     path => $path,
     dist => $dist,
+    myver => $Kossy::VERSION,
 };
 foreach my $fkey ( keys %{$files} ) {
     my $path = $tx->render_string($fkey, $args);
@@ -230,7 +231,7 @@ WriteMakefile(
     NAME          => '[% module  %]',
     VERSION_FROM  => 'lib/[% module %].pm',
     PREREQ_PM     => {
-        'Kossy' => '0.01',
+        'Kossy' =>  '[% myver %]',
     },
     MIN_PERL_VERSION => '5.008001'
 );
