@@ -19,7 +19,7 @@ use Class::Accessor::Lite (
 use base qw/Exporter/;
 
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 our @EXPORT = qw/new root_dir psgi build_app _router _connect get post router filter _wrap_filter/;
 
 sub new {
@@ -202,6 +202,8 @@ package Kossy::Exception;
 
 use strict;
 use warnings;
+use HTTP::Status;
+use Text::Xslate qw/html_escape/;
 
 sub new {
     my $class = shift;
@@ -228,15 +230,47 @@ sub response {
     $message ||= HTTP::Status::status_message($code);
 
     my @headers = (
-         'Content-Type'   => 'text/plain',
-         'Content-Length' => length($message),
+         'Content-Type' => q!text/html; charset=UTF-8!,
     );
 
     if ($code =~ /^3/ && (my $loc = eval { $self->{location} })) {
         push(@headers, Location => $loc);
     }
 
-    return Kossy::Response->new($code, \@headers, [$message ])->finalize;
+    return Kossy::Response->new($code, \@headers, [$self->html($code,$message)])->finalize;
+}
+
+sub html {
+    my $self = shift;
+    my ($code,$message) = @_;
+    $code = html_escape($code);
+    $message = html_escape($message);
+    return <<EOF;
+<!doctype html>
+<html>
+<head>
+<meta charset=utf-8 />
+<style type="text/css">
+.message {
+  font-size: 200%;
+  margin: 20px 20px;
+  color: #666;
+}
+.message strong {
+  font-size: 250%;
+  font-weight: bold;
+  color: #333;
+}
+</style>
+</head>
+<body>
+<p class="message">
+<strong>$code</strong> $message
+</p>
+</div>
+</body>
+</html>
+EOF
 }
 
 package Kossy::Connection;

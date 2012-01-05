@@ -1,5 +1,8 @@
 Revision history for Perl extension Kossy
 
+0.06    Thu Jan 5 10:31:51 2012
+        - htmlize error page
+
 0.05    Tue Nov 29 17:43:51 2011
         - release to CPAN
 
