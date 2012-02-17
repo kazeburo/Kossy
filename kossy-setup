@@ -10,6 +10,7 @@ use Text::Xslate;
 use Data::Section::Simple qw(get_data_section);
 use MIME::Base64;
 use Kossy::Assets;
+use Encode;
 
 require Kossy;
 
@@ -38,7 +39,7 @@ _mkpath "views";
 _mkpath "public";
 _mkpath "public/js";
 _mkpath "public/css";
-_mkpath "public/images";
+_mkpath "public/img";
 _mkpath "t";
 
 my $files = get_data_section();
@@ -51,6 +52,7 @@ my $args = {
 foreach my $fkey ( keys %{$files} ) {
     my $path = $tx->render_string($fkey, $args);
     my $content = $tx->render_string($files->{$fkey}, $args);
+    $content = encode_utf8($content);
     print "writing $path\n";
     open(my $fh, '>', $path);
     print $fh $content
@@ -64,6 +66,9 @@ foreach my $fkey ( keys %$assets ) {
     if ( $path =~ m!\.b64$! ) {
         $path =~ s/\.b64$//g;
         $content = decode_base64($content);
+    }
+    else {
+        $content = encode_utf8($content);
     }
     print "writing $path\n";
     open(my $fh, '>', $path);
@@ -131,81 +136,56 @@ get '/json' => sub {
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<title>[% module %]</title>
 <link rel="shortcut icon" href="<: $c.req.uri_for('/favicon.ico') :>" type="image/vnd.microsoft.icon" />
 <link rel="stylesheet" href="<: $c.req.uri_for('/css/bootstrap.min.css') :>">
-<title>[% module %]</title>
-<style type='text/css'>
+<style>
 body {
-  background-color: #fff;
-  position: relative;
-}
-section {
   padding-top: 60px;
 }
-section > .row {
-  margin-bottom: 10px;
-}
-.footer {
-  background-color: #eee;
-  min-width: 940px;
-  padding: 30px 0;
-  text-shadow: 0 1px 0 #fff;
-  border-top: 1px solid #e5e5e5;
-  -webkit-box-shadow: inset 0 5px 15px rgba(0,0,0,.025);
-     -moz-box-shadow: inset 0 5px 15px rgba(0,0,0,.025);
-/*          box-shadow: inset 0 5px 15px rgba(0,0,0,.025);
-*/}
 </style>
+<link rel="stylesheet" href="<: $c.req.uri_for('/css/bootstrap-responsive.min.css') :>">
 </head>
 <body>
 
-<div class="topbar">
-<div class="topbar-inner">
+<div class="navbar navbar-fixed-top">
+<div class="navbar-inner">
 <div class="container">
+<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+<span class="icon-bar"></span>
+<span class="icon-bar"></span>
+<span class="icon-bar"></span>
+</a>
 <a class="brand" href="<: $c.req.uri_for('/') :>">[% module %]</a>
+<div class="nav-collapse">
 <ul class="nav">
-<li><a href="<: $c.req.uri_for('/') :>">Home</a></li>
+<li class="active"><a href="<: $c.req.uri_for('/') :>">Home</a></li>
+<li><a href="#about">About</a></li>
+<li><a href="#contact">Contact</a></li>
 </ul>
+</div> <!--/.nav-collapse -->
 </div>
 </div>
 </div>
 
 <div class="container">
-<section>
-<div class="page-header">
-: block page_header -> { }
-</div>
-<div class="row">
-<div class="span16">
+
 : block content -> { }
-</div>
-</div>
-</section>
-</div>
 
-<footer class="footer">
-<div class="container">
-<p class="pull-right"><a href="#">Back to top</a></p>
-<p>Powered by Kossy</p>
-</div>
-</footer>
+</div> <!-- /container -->
 
 <script type="text/javascript" src="<: $c.req.uri_for('/js/jquery-1.7.1.min.js') :>"></script>
-<script type="text/javascript" src="<: $c.req.uri_for('/js/bootstrap-modal.js') :>"></script>
-<script type="text/javascript" src="<: $c.req.uri_for('/js/bootstrap-alerts.js') :>"></script>
+<script type="text/javascript" src="<: $c.req.uri_for('/js/bootstrap.min.js') :>"></script>
 </body>
 </html>
 
+
 @@ views/index.tx
 : cascade base
-: around page_header -> {
-<h1><: $c.stash.site_name :></h1>
-: }
-
 : around content -> {
-<h2><: $greeting :></h2>
+<h1><: $greeting :> <: $c.stash.site_name :></h1>
+<p>Use this document as a way to quick start any new project.<br> All you get is this message and a barebones HTML document.</p>
 : }
-
 
 @@ app.psgi
 use FindBin;
@@ -221,7 +201,7 @@ my $app = [% module %]::Web->psgi($root_dir);
 builder {
     enable 'ReverseProxy';
     enable 'Static',
-        path => qr!^/(?:(?:css|js|images)/|favicon\.ico$)!,
+        path => qr!^/(?:(?:css|js|img)/|favicon\.ico$)!,
         root => $root_dir . '/public';
     $app;
 };

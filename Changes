@@ -1,5 +1,8 @@
 Revision history for Perl extension Kossy
 
+0.07    Fri Feb 17 12:07:06 2012
+        - updated Twitter Bootstrap 2.0
+
 0.06    Thu Jan 5 10:31:51 2012
         - htmlize error page
 
