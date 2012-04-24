@@ -20,4 +20,5 @@
 ^\.git/
 \.sw[po]$
 kossy_asset/
+\.DS_Store
 

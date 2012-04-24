@@ -1,5 +1,10 @@
 Revision history for Perl extension Kossy
 
+0.08    Tue Apr 24 18:59:47 2012
+        - updated to Twitter Bootstrap 2.0.3
+        - updated to jQuery 1.7.2
+        - using sharedir for assets, Kossy::Assets was deprecated
+
 0.07    Fri Feb 17 12:07:06 2012
         - updated to Twitter Bootstrap 2.0
 

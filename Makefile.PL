@@ -19,12 +19,14 @@ requires 'JSON';
 requires 'Number::Format';
 requires 'Data::Section::Simple';
 requires 'Test::More', 0.88;
+requires 'File::ShareDir';
 
 tests 't/*.t t/*/*.t';
 author_tests 'xt';
 
 test_requires 'Test::More';
 
+install_share 'share';
 install_script 'kossy-setup';
 auto_set_repository;
 #auto_include;

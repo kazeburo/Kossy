@@ -8,8 +8,9 @@ use Getopt::Long;
 use Pod::Usage;
 use Text::Xslate;
 use Data::Section::Simple qw(get_data_section);
+use File::ShareDir qw/dist_file/;
+use File::Copy;
 use MIME::Base64;
-use Kossy::Assets;
 use Encode;
 
 require Kossy;
@@ -42,6 +43,21 @@ _mkpath "public/css";
 _mkpath "public/img";
 _mkpath "t";
 
+my @public_files = qw!
+public/css/bootstrap-responsive.min.css
+public/css/bootstrap.min.css
+public/favicon.ico
+public/img/glyphicons-halflings-white.png
+public/img/glyphicons-halflings.png
+public/js/bootstrap.min.js
+public/js/jquery.min.js
+!;
+
+foreach my $file ( @public_files ) {
+    print "writing $file\n";
+    copy dist_file('Kossy',$file), $file;
+}
+
 my $files = get_data_section();
 my $args = {
     module => $module,
@@ -56,23 +72,6 @@ foreach my $fkey ( keys %{$files} ) {
     print "writing $path\n";
     open(my $fh, '>', $path);
     print $fh $content
-}
-
-my $assets_reader = Data::Section::Simple->new('Kossy::Assets');
-my $assets = $assets_reader->get_data_section;
-foreach my $fkey ( keys %$assets ) {
-    my $path = $fkey;
-    my $content = $assets->{$path};
-    if ( $path =~ m!\.b64$! ) {
-        $path =~ s/\.b64$//g;
-        $content = decode_base64($content);
-    }
-    else {
-        $content = encode_utf8($content);
-    }
-    print "writing $path\n";
-    open(my $fh, '>', $path);
-    print $fh $content;
 }
 
 =head1 SYNOPSIS

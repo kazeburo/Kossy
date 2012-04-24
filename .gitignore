@@ -11,4 +11,4 @@ MANIFEST.bak
 *.sw[po]
 *~
 *.tar.gz
-
+.DS_Store
