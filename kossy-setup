@@ -173,7 +173,7 @@ body {
 
 </div> <!-- /container -->
 
-<script type="text/javascript" src="<: $c.req.uri_for('/js/jquery-1.7.1.min.js') :>"></script>
+<script type="text/javascript" src="<: $c.req.uri_for('/js/jquery.min.js') :>"></script>
 <script type="text/javascript" src="<: $c.req.uri_for('/js/bootstrap.min.js') :>"></script>
 </body>
 </html>
