@@ -12,6 +12,7 @@ use File::ShareDir qw/dist_file/;
 use File::Copy;
 use MIME::Base64;
 use Encode;
+use File::Basename;
 
 require Kossy;
 
@@ -37,13 +38,9 @@ mkdir $dist or die $!;
 chdir $dist or die $!;
 _mkpath "lib/$path";
 _mkpath "views";
-_mkpath "public";
-_mkpath "public/js";
-_mkpath "public/css";
-_mkpath "public/img";
 _mkpath "t";
 
-my @public_files = qw!
+my @share_files = qw!
 public/css/bootstrap-responsive.min.css
 public/css/bootstrap.min.css
 public/favicon.ico
@@ -53,8 +50,9 @@ public/js/bootstrap.min.js
 public/js/jquery.min.js
 !;
 
-foreach my $file ( @public_files ) {
+foreach my $file ( @share_files ) {
     print "writing $file\n";
+    _mkpath( dirname($file) ) if ! -d dirname($file);
     copy dist_file('Kossy',$file), $file;
 }
 
@@ -210,7 +208,7 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile(
     NAME          => '[% module  %]',
-    VERSION_FROM  => 'lib/[% module %].pm',
+    VERSION_FROM  => 'lib/[% path %].pm',
     PREREQ_PM     => {
         'Kossy' =>  '[% myver %]',
     },

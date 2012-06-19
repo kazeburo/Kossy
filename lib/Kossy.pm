@@ -24,10 +24,18 @@ our @EXPORT = qw/new root_dir psgi build_app _router _connect get post router fi
 
 sub new {
     my $class = shift;
-    my $root_dir = shift;
-    my @caller = caller;
-    $root_dir ||= File::Basename::dirname( Cwd::realpath($caller[1]) );
-    bless { root_dir => $root_dir }, $class;
+    my %args;
+    if ( @_ < 2 ) {
+        my $root_dir = shift;
+        my @caller = caller;
+        $root_dir ||= File::Basename::dirname( Cwd::realpath($caller[1]) );
+        $args{root_dir} = $root_dir;
+    }
+    else {
+        %args = @_;
+    }
+
+    bless \%args, $class;
 }
 
 sub psgi {
@@ -515,7 +523,7 @@ Kossy exports some methods to building application
 
 =over 4
 
-=item my $kossy = Kossy->new($root_dir);
+=item my $kossy = Kossy->new( root_dir => $root_dir );
 
 Create instance of the application object.
 
