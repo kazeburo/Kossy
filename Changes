@@ -1,5 +1,8 @@
 Revision history for Perl extension Kossy
 
+0.10    Tue Jun 19 11:12:47 2012
+        - accept hash argument in new constructor
+
 0.09    Thu May 17 17:48:24 2012
         - fixed css uri in skelton
 
