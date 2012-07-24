@@ -429,7 +429,10 @@ sub param_raw {
 sub uri_for {
      my($self, $path, $args) = @_;
      my $uri = $self->base;
-     $uri->path($path);
+     my $base = $uri->path eq "/"
+              ? ""
+              : $uri->path;
+     $uri->path( $base . $path );
      $uri->query_form(@$args) if $args;
      $uri;
 }
