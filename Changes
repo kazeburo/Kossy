@@ -1,5 +1,8 @@
 Revision history for Perl extension Kossy
 
+0.11    Tue Jul 24 21:48:04 2012
+        - fixed uri_for() if app is mounted on non '/' location. (Thank you fujiwara-san)
+
 0.10    Tue Jun 19 11:12:47 2012
         - accept hash argument in new constructor
 
