@@ -1,4 +1,5 @@
 use strict;
+use warnings;
 use HTTP::Request::Common;
 use HTTP::Message::PSGI;
 use Plack::Request;

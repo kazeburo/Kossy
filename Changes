@@ -1,5 +1,9 @@
 Revision history for Perl extension Kossy
 
+0.12    Fri Aug 24 18:17:51 2012
+        - updated to Twitter Bootstrap 2.1.0
+        - updated to jQuery 1.8.0
+
 0.11    Tue Jul 24 21:48:04 2012
         - fixed uri_for() if app is mounted on non '/' location. (Thank you fujiwara-san)
 

@@ -19,7 +19,7 @@ use Class::Accessor::Lite (
 use base qw/Exporter/;
 
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 our @EXPORT = qw/new root_dir psgi build_app _router _connect get post router filter _wrap_filter/;
 
 sub new {
