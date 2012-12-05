@@ -1,5 +1,8 @@
 Revision history for Perl extension Kossy
 
+0.13    Wed Dec 5 11:23:43 2012
+        - requires Text::Xslate >= 1.6001, HTML::FillInForm::Lite >= 1.11
+
 0.12    Fri Aug 24 18:17:51 2012
         - updated to Twitter Bootstrap 2.1.0
         - updated to jQuery 1.8.0
