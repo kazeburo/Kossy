@@ -204,7 +204,7 @@ Kossy::Validator - form validator
   my $result = Kossy::Validator->check($req, [
         'q' => [['NOT_NULL','query must be defined']],
         'level' => {
-            default => 'M',
+            default => 'M', # or sub { 'M' }
             rule => [
                 [['CHOICE',qw/L M Q H/],'invalid level char'],
             ],
