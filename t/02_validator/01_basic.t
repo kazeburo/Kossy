@@ -137,6 +137,23 @@ sub mkreq {
 
 
 {
+    my $req = mkreq( GET 'http://example.com/' );
+    my $result = Kossy::Validator->check($req,[
+        'q' => {
+            default => sub { 'a' },
+            rule => [
+                [['CHOICE',qw/a b/],'invalid_choice'],
+            ],
+        }
+    ]);
+    ok(!$result->has_error);
+    is(ref($result->messages),'ARRAY');
+    is_deeply($result->messages, []);
+    is($result->valid('q'),'a');
+}
+
+
+{
     my $req = mkreq( GET 'http://example.com/?q=a&q=b' );
     my $result = Kossy::Validator->check($req,[
         'q' => [['NOT_NULL','is_null']],
