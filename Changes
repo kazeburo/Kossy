@@ -1,5 +1,8 @@
 Revision history for Perl extension Kossy
 
+0.15    Fri Apr 0:29:46 2013
+        - render_json: enable allow_blessed and convert_blessed
+
 0.14    Thu Mar 14 22:25:49 2013
         - Kossy::Validator: support Coderef default
 

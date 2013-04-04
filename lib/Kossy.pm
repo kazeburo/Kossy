@@ -18,7 +18,7 @@ use Class::Accessor::Lite (
 );
 use base qw/Exporter/;
 
-our $VERSION = '0.14';
+our $VERSION = '0.15';
 our @EXPORT = qw/new root_dir psgi build_app _router _connect get post router filter _wrap_filter/;
 
 sub new {
@@ -290,7 +290,7 @@ use Class::Accessor::Lite (
 );
 use JSON qw//;
 
-my $_JSON = JSON->new()->ascii(1);
+my $_JSON = JSON->new()->allow_blessed(1)->convert_blessed(1)->ascii(1);
 
 my %_ESCAPE = (
     '+' => '\\u002b', # do not eval as UTF-7
