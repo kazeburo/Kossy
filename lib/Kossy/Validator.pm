@@ -266,6 +266,10 @@ unsigned int
 
 natural number
 
+=item REAL, DOUBLE, FLOAT
+
+floating number
+
 =item @SELECTED_NUM
 
   ['@SELECTED_NUM',min,max]
