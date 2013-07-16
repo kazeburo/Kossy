@@ -35,6 +35,21 @@ our %VALIDATOR = (
         return if not defined($val);
         $val =~ /^\d+$/ && $val > 0;
     },
+    FLOAT => sub {
+        my ($req,$val) = @_;
+        return if not defined($val);
+        $val =~ /^\-?(\d+\.?\d*|\.\d+)(e[+-]\d+)?$/;
+    },
+    DOUBLE => sub {
+        my ($req,$val) = @_;
+        return if not defined($val);
+        $val =~ /^\-?(\d+\.?\d*|\.\d+)(e[+-]\d+)?$/;
+    },
+    REAL => sub {
+        my ($req,$val) = @_;
+        return if not defined($val);
+        $val =~ /^\-?(\d+\.?\d*|\.\d+)(e[+-]\d+)?$/;
+    },
     '@SELECTED_NUM' => sub {
         my ($req,$vals,@args) = @_;
         my ($min,$max) = @args;
