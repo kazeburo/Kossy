@@ -1,5 +1,8 @@
 Revision history for Perl extension Kossy
 
+0.16    Tue Jul 16 13:29:21 2013
+        - added floating number validation rules
+
 0.15    Fri Apr 0:29:46 2013
         - render_json: enable allow_blessed and convert_blessed
 
