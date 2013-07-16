@@ -1,5 +1,9 @@
 Revision history for Perl extension Kossy
 
+0.17    Tue Jul 16 13:38:09 2013
+        - updated to Twitter Bootstrap
+        - updated to jQuery
+
 0.16    Tue Jul 16 13:29:21 2013
         - added floating number validation rules
 
