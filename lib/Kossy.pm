@@ -292,11 +292,27 @@ use JSON qw//;
 
 my $_JSON = JSON->new()->allow_blessed(1)->convert_blessed(1)->ascii(1);
 
+# for IE7 JSON venularity.
+# see http://www.atmarkit.co.jp/fcoding/articles/webapp/05/webapp05a.html
+# Copy from Amon2::Plugin::Web::JSON => Fixed to escape only string parts
 my %_ESCAPE = (
     '+' => '\\u002b', # do not eval as UTF-7
     '<' => '\\u003c', # do not eval as HTML
     '>' => '\\u003e', # ditto.
 );
+sub escape {
+    my $self = shift;
+    my $body = shift;
+    $body =~ s!([+<>])!$_ESCAPE{$1}!g;
+    return qq("$body");
+}
+sub escape_json {
+    my $self = shift;
+    my $body = shift;
+    # escape only string parts
+    $body =~ s/"((?:\\"|[^"])*)"/$self->escape($1)/eg;
+    return $body;
+}
 
 *request = \&req;
 *response = \&res;
@@ -343,11 +359,8 @@ sub render_json {
         $self->halt(403,"Your request is maybe JSON hijacking.\nIf you are not a attacker, please add 'X-Requested-With' header to each request.");
     }
 
-    # for IE7 JSON venularity.
-    # see http://www.atmarkit.co.jp/fcoding/articles/webapp/05/webapp05a.html
-    # Copy from Amon2::Plugin::Web::JSON
     my $body = $_JSON->encode($obj);
-    $body =~ s!([+<>])!$_ESCAPE{$1}!g;
+    $body = $self->escape_json($body);
 
     if ( ( $self->req->user_agent || '' ) =~ m/Safari/ ) {
         $body = "\xEF\xBB\xBF" . $body;
