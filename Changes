@@ -1,5 +1,8 @@
 Revision history for Perl extension Kossy
 
+0.20    Wed Oct 9 15:46:10 2013
+        - separete Kossy::Validator to another dist
+
 0.19    Fri Aug 30 16:00:56 2013
         - fixed requires
 
