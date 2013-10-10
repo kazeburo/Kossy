@@ -1,5 +1,8 @@
 Revision history for Perl extension Kossy
 
+0.21    Thu Oct 10 15:37:36 2013
+        - [Kossy::Request] cache base() for performance. URI->canonical is slow
+
 0.20    Wed Oct 9 15:46:10 2013
         - separete Kossy::Validator to another dist
 
