@@ -438,6 +438,14 @@ sub param_raw {
     return $self->parameters_raw->get_all($key);
 }
 
+sub base {
+    my $self = shift;
+    $self->{_base} ||= {};
+    my $base = $self->_uri_base;
+    $self->{_base}->{$base} ||= $self->SUPER::base;
+    $self->{_base}->{$base}->clone;
+}
+
 sub uri_for {
      my($self, $path, $args) = @_;
      my $uri = $self->base;
