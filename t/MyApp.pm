@@ -14,5 +14,10 @@ get "/uri_for" => sub {
     $c->response->body( $c->request->uri_for("/uri_for")->as_string );
 };
 
+router [qw/GET POST/] => "/bar" => sub {
+    my ( $self, $c )  = @_;
+    $c->response->body("ok");
+};
+ 
 1;
 

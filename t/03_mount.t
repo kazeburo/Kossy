@@ -27,6 +27,17 @@ subtest "/" => sub {
             $res = $cb->( GET "http://localhost/uri_for" );
             is $res->code, 200;
             is $res->content, "http://localhost/uri_for";
+
+            $res = $cb->( POST "http://localhost/uri_for" );
+            is $res->code, 405;
+
+            $res = $cb->( GET "http://localhost/bar" );
+            is $res->code, 200;
+            $res = $cb->( POST "http://localhost/bar" );
+            is $res->code, 200;
+            $res = $cb->( HEAD "http://localhost/bar" );
+            is $res->code, 405;
+
         };
 };
 
