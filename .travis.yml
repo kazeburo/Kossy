@@ -1,6 +1,6 @@
 language: perl
 before_install:
-  - cpanm -n Module::Install Module::Install::Repository Module::Install::ShareFile
+  - cpanm -n Module::Install Module::Install::Repository Module::Install::ShareFile Module::Install::AuthorTests
 perl:
   - 5.18
   - 5.16
