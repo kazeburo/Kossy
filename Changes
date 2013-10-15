@@ -1,5 +1,8 @@
 Revision history for Perl extension Kossy
 
+0.22    Tue Oct 15 11:44::46 2013
+        - switch to using Router::Boom
+
 0.21    Thu Oct 10 15:37:36 2013
         - [Kossy::Request] cache base() for performance. URI->canonical is slow
 
