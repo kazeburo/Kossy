@@ -7,7 +7,7 @@ requires 'Scalar::Util';
 requires 'Plack';
 requires 'Plack::Middleware::Static';
 requires 'Plack::Middleware::ReverseProxy';
-requires 'Router::Boom';
+requires 'Router::Boom'                      => '0.05';
 requires 'Cwd';
 requires 'File::Basename';
 requires 'Text::Xslate'                      => '1.6001';
@@ -22,7 +22,7 @@ requires 'Test::More'                        => '0.88';
 requires 'File::ShareDir';
 requires 'HTTP::Message';
 requires 'Hash::MultiValue';
-requires 'Kossy::Validator' => '0.01';
+requires 'Kossy::Validator'                  => '0.01';
 
 tests 't/*.t t/*/*.t';
 author_tests 'xt';
