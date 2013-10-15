@@ -5,13 +5,13 @@ use warnings;
 use utf8;
 use Carp qw//;
 use Scalar::Util qw//;
-use Router::Simple;
 use Cwd qw//;
 use File::Basename qw//;
 use Text::Xslate;
 use HTML::FillInForm::Lite qw//;
 use Try::Tiny;
 use Encode;
+use Router::Boom;
 use Class::Accessor::Lite (
     new => 0,
     rw => [qw/root_dir/]
@@ -53,8 +53,8 @@ sub build_app {
     my $self = shift;
 
     #router
-    my $router = Router::Simple->new;
-    $router->connect(@{$_}) for @{$self->_router};
+    my $router = Router::Boom->new;
+    $router->add(@{$_}) for @{$self->_router};
 
     #xslate
     my $fif = HTML::FillInForm::Lite->new();
@@ -82,18 +82,24 @@ sub build_app {
             stash => {},
         });
         $c->res->content_type('text/html; charset=UTF-8');
-        my $match = try {
-            local $env->{PATH_INFO} = Encode::decode_utf8( $env->{PATH_INFO},  Encode::FB_CROAK | Encode::LEAVE_SRC );
-            $router->match($env)
+        my ($match,$args) = try {
+            my $path_info = Encode::decode_utf8( $env->{PATH_INFO},  Encode::FB_CROAK | Encode::LEAVE_SRC );
+            my @match = $router->match($path_info);
+            return unless @match;
+            my $method = $match[0]->{__method__} || {};
+            if ( !exists $method->{uc $env->{REQUEST_METHOD}}) {
+                return;
+            }
+            return @match;
         }
         catch {
             $c->halt(400,'unexpected character in request');
         };
 
         if ( $match ) {
-            my $code = delete $match->{action};
-            my $filters = delete $match->{filter};
-            $c->args($match);
+            my $code = $match->{__action__};
+            my $filters = $match->{__filter__} || [];
+            $c->args($args);
 
             my $app = sub {
                 my ($self, $c) = @_;
@@ -161,8 +167,7 @@ sub _connect {
     }
     $class->_router(
         $pattern,
-        { action => $code, filter => $filter },
-        { method => [ map { uc $_ } @$methods ] } 
+        { __action__ => $code, __filter__ => $filter, __method__ => { map { uc $_ => 1 } @$methods } },
     );
 }
 

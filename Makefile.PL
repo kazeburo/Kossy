@@ -7,7 +7,7 @@ requires 'Scalar::Util';
 requires 'Plack';
 requires 'Plack::Middleware::Static';
 requires 'Plack::Middleware::ReverseProxy';
-requires 'Router::Simple';
+requires 'Router::Boom';
 requires 'Cwd';
 requires 'File::Basename';
 requires 'Text::Xslate'                      => '1.6001';
