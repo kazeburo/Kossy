@@ -1,5 +1,10 @@
 Revision history for Perl extension Kossy
 
+0.23    Mon Oct 21 14:17:49 2013
+        - improve performance
+          use HTTP::Headers::Fast
+          optimze Kossy::Response->finalize
+
 0.22    Tue Oct 15 11:44::46 2013
         - switch to using Router::Boom
 
