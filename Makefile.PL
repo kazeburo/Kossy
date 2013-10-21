@@ -29,6 +29,7 @@ tests 't/*.t t/*/*.t';
 author_tests 'xt';
 
 test_requires 'Test::More';
+test_requires 'Cookie::Baker';
 
 install_share 'share';
 install_script 'kossy-setup';
