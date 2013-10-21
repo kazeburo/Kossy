@@ -20,6 +20,9 @@ subtest "/" => sub {
             my $res = $cb->( GET "http://localhost/" );
             is $res->code, 200;
             is $res->content, "ok";
+            is $res->header('Content-Type'), 'text/html; charset=UTF-8';
+            is $res->header('X-Frame-Options'), 'DENY';
+            is $res->header('X-XSS-Protection'), '1';
 
             $res = $cb->( GET "http://localhost/foo" );
             is $res->code, 404;
@@ -37,6 +40,14 @@ subtest "/" => sub {
             is $res->code, 200;
             $res = $cb->( HEAD "http://localhost/bar" );
             is $res->code, 405;
+
+            $res = $cb->( GET "http://localhost/set_cookie" );
+            is $res->code, 200;
+            is $res->content, "cookies are baked";
+            is $res->header('Content-Type'), 'text/html; charset=UTF-8';
+            is $res->header('X-Frame-Options'), 'DENY';
+            is $res->header('X-XSS-Protection'), '1';
+            is $res->header('Set-Cookie'), 'foo=123456';
 
         };
 };

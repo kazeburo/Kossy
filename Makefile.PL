@@ -23,6 +23,7 @@ requires 'File::ShareDir';
 requires 'HTTP::Message';
 requires 'Hash::MultiValue';
 requires 'Kossy::Validator'                  => '0.01';
+requires 'HTTP::Headers::Fast';
 
 tests 't/*.t t/*/*.t';
 author_tests 'xt';

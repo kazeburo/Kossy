@@ -79,10 +79,9 @@ sub build_app {
             my $c = Kossy::Connection->new({
                 tx => $tx,
                 req => Kossy::Request->new($env),
-                res => Kossy::Response->new(200),
+                res => Kossy::Response->new(200, ['Content-Type' => 'text/html; charset=UTF-8']),
                 stash => {},
             });
-            $c->res->content_type('text/html; charset=UTF-8');
             my ($match,$args) = try {
                 my $path_info = Encode::decode_utf8( $env->{PATH_INFO},  Encode::FB_CROAK | Encode::LEAVE_SRC );
                 my @match = $router->match($path_info);
@@ -476,12 +475,23 @@ use strict;
 use warnings;
 use parent qw/Plack::Response/;
 use Encode;
+use HTTP::Headers::Fast;
 
-sub finalize {
+sub headers {
     my $self = shift;
-    $self->header('X-Frame-Options'=>'DENY');
-    $self->header('X-XSS-Protection'=>'1');
-    $self->SUPER::finalize();
+
+    if (@_) {
+        my $headers = shift;
+        if (ref $headers eq 'ARRAY') {
+            Carp::carp("Odd number of headers") if @$headers % 2 != 0;
+            $headers = HTTP::Headers::Fast->new(@$headers);
+        } elsif (ref $headers eq 'HASH') {
+            $headers = HTTP::Headers::Fast->new(%$headers);
+        }
+        return $self->{headers} = $headers;
+    } else {
+        return $self->{headers} ||= HTTP::Headers::Fast->new();
+    }
 }
 
 sub _body {
@@ -494,6 +504,35 @@ sub _body {
     } else {
         return $body;
     }
+}
+
+sub finalize {
+    my $self = shift;
+    Carp::croak "missing status" unless $self->status();
+
+    my @headers;
+    $self->headers->scan(sub{
+        my ($k,$v) = @_;
+        return if $k eq 'X-Frame-Options' || $k eq 'X-XSS-Protection';
+        $v =~ s/\015\012[\040|\011]+/chr(32)/ge; # replace LWS with a single SP
+        $v =~ s/\015|\012//g; # remove CR and LF since the char is invalid here
+        push @headers, $k, $v;
+    });
+
+    while (my($name, $val) = each %{$self->cookies}) {
+        my $cookie = $self->_bake_cookie($name, $val);
+        push @headers, 'Set-Cookie' => $cookie;
+    }
+
+    push @headers, 
+        'X-Frame-Options' => 'DENY',
+        'X-XSS-Protection' => 1;
+
+    return [
+        $self->status,
+        \@headers,
+        $self->_body,
+    ];
 }
 
 1;
