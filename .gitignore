@@ -13,4 +13,4 @@ MANIFEST.bak
 *.tar.gz
 .DS_Store
 MYMETA.*
-
+nytprof*
