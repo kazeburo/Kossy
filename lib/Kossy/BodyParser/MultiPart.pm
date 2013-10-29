@@ -5,7 +5,6 @@ use utf8;
 use HTTP::MultiPartParser;
 use HTTP::Headers::Util    qw[split_header_words];
 use File::Temp;
-use Hash::MultiValue;
 use Carp ();
 use Plack::Request::Upload;
 use HTTP::Headers;

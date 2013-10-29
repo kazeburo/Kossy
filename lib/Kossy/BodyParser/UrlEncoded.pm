@@ -3,7 +3,6 @@ use strict;
 use warnings;
 use utf8;
 use URL::Encode;
-use Hash::MultiValue;
 
 sub new {
     my $class = shift;

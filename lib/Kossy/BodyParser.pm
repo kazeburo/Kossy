@@ -40,8 +40,8 @@ sub parse {
     my $cl = $env->{CONTENT_LENGTH};
     if (!$ct && !$cl) {
         # No Content-Type nor Content-Length -> GET/HEAD
-        $env->{'kossy.request.body_array'}   = [];
-        $env->{'kossy.request.upload_array'} = [];
+        $env->{'kossy.request.body_parameters'}   = [];
+        $env->{'kossy.request.upload_parameters'} = [];
         return;
     }
 
@@ -75,7 +75,7 @@ sub parse {
         $input->seek(0, 0);
     }
 
-    ($env->{'kossy.request.body_array'}, $env->{'kossy.request.upload_array'})
+    ($env->{'kossy.request.body_parameters'}, $env->{'kossy.request.upload_parameters'})
         = $parser->finalize();
 
     return 1;

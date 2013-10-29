@@ -40,10 +40,17 @@ sub new {
 sub psgi {
     my $self = shift;
     if ( ! ref $self ) {
-        my $root_dir = shift;
-        my @caller = caller;
-        $root_dir ||= File::Basename::dirname( Cwd::realpath($caller[1]) );
-        $self = $self->new($root_dir);
+        my %args;
+        if ( @_ < 2 ) {
+            my $root_dir = shift;
+            my @caller = caller;
+            $root_dir ||= File::Basename::dirname( Cwd::realpath($caller[1]) );
+            $args{root_dir} = $root_dir;
+        }
+        else {
+            %args = @_;
+        }
+        $self = $self->new(%args);
     }
 
     $self->build_app;
@@ -78,7 +85,7 @@ sub build_app {
         try {
             my $c = Kossy::Connection->new({
                 tx => $tx,
-                req => Kossy::Request->new($env),
+                req => Kossy::Request->new($env, (parse_json_body => $self->{parse_json_body}) ),
                 res => Kossy::Response->new(200, ['Content-Type' => 'text/html; charset=UTF-8']),
                 stash => {},
             });
@@ -390,6 +397,7 @@ use Kossy::Validator;
 use Kossy::BodyParser;
 use Kossy::BodyParser::UrlEncoded;
 use Kossy::BodyParser::MultiPart;
+use Kossy::BodyParser::JSON;
 
 sub new {
     my($class, $env, %opts) = @_;
@@ -397,8 +405,8 @@ sub new {
         unless defined $env && ref($env) eq 'HASH';
 
     bless {
+        %opts,
         env => $env,
-        ($opts{request_body_parser} ? (request_body_parser => $opts{request_body_parser}) : ()),
     }, $class;
 }
 
@@ -422,6 +430,12 @@ sub _build_request_body_parser {
         'multipart/form-data',
         'Kossy::BodyParser::MultiPart'
     );
+    if ( $self->{parse_json_body} ) {
+            $parser->register(
+                'application/json',
+                'Kossy::BodyParser::JSON'
+            );
+    }
     $parser;
 }
 
@@ -432,21 +446,21 @@ sub _parse_request_body {
 
 sub uploads {
     my $self = shift;
-    unless ($self->env->{'kossy.request.upload_array'}) {
+    unless ($self->env->{'kossy.request.upload_parameters'}) {
         $self->_parse_request_body;
     }
     $self->env->{'plack.request.upload'} ||= 
-        Hash::MultiValue->new(@{$self->env->{'Kossy.request.upload_array'}});
+        Hash::MultiValue->new(@{$self->env->{'kossy.request.upload_parameters'}});
 }
 
 sub body_parameters {
     my ($self) = @_;
-    $self->env->{'kossy.request.body'} ||= $self->_decode_parameters(@{$self->body_parameters_array()});
+    $self->env->{'kossy.request.body'} ||= $self->_decode_parameters(@{$self->_body_parameters()});
 }
 
 sub query_parameters {
     my ($self) = @_;
-    $self->env->{'kossy.request.query'} ||= $self->_decode_parameters(@{$self->query_parameters_array()});
+    $self->env->{'kossy.request.query'} ||= $self->_decode_parameters(@{$self->_query_parameters()});
 }
 
 sub parameters {
@@ -468,27 +482,27 @@ sub _decode_parameters {
     return Hash::MultiValue->new(@decoded);
 }
 
-sub body_parameters_array {
+sub _body_parameters {
     my $self = shift;
-    unless ($self->env->{'kossy.request.body_array'}) {
+    unless ($self->env->{'kossy.request.body_parameters'}) {
         $self->_parse_request_body;
     }
-    return $self->env->{'kossy.request.body_array'};    
+    return $self->env->{'kossy.request.body_parameters'};    
 }
 
-sub query_parameters_array {
+sub _query_parameters {
     my $self = shift;
-    unless ( $self->env->{'kossy.request.query_array'} ) {
-        $self->env->{'kossy.request.query_array'} = 
+    unless ( $self->env->{'kossy.request.query_parameter'} ) {
+        $self->env->{'kossy.request.query_parameters'} = 
             URL::Encode::url_params_flat($self->env->{'QUERY_STRING'});
     }
-    return $self->env->{'kossy.request.query_array'};
+    return $self->env->{'kossy.request.query_parameters'};
 }
 
 sub body_parameters_raw {
     my $self = shift;
     unless ($self->env->{'plack.request.body'}) {
-        $self->env->{'plack.request.body'} = Hash::MultiValue->new(@{$self->body_parameters_array});
+        $self->env->{'plack.request.body'} = Hash::MultiValue->new(@{$self->_body_parameters});
     }
     return $self->env->{'plack.request.body'};
 }
@@ -496,7 +510,7 @@ sub body_parameters_raw {
 sub query_parameters_raw {
     my $self = shift;
     unless ($self->env->{'plack.request.query'}) {
-        $self->env->{'plack.request.query'} = Hash::MultiValue->new(@{$self->query_parameters_array});
+        $self->env->{'plack.request.query'} = Hash::MultiValue->new(@{$self->_query_parameters});
     }
     return $self->env->{'plack.request.query'};
 }
@@ -505,8 +519,8 @@ sub parameters_raw {
     my $self = shift;
     $self->env->{'plack.request.merged'} ||= do {
         Hash::MultiValue->new(
-            @{$self->query_parameters_array},
-            @{$self->body_parameters_array}
+            @{$self->_query_parameters},
+            @{$self->_body_parameters}
         );
     };
 }

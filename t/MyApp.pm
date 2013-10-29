@@ -16,8 +16,8 @@ get "/uri_for" => sub {
 
 router [qw/GET POST/] => "/bar" => sub {
     my ( $self, $c )  = @_;
-    my @param = $c->req->param('q');
-    $c->response->body("ok");
+    my $param = $c->req->param('q');
+    $c->response->body("ok => " . $param);
 };
 
 get '/set_cookie' => sub {

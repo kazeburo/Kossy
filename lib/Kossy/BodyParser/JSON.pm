@@ -4,7 +4,6 @@ use warnings;
 use utf8;
 use JSON ();
 use Encode qw(encode_utf8);
-use Hash::MultiValue;
 
 sub new {
     my $class = shift;

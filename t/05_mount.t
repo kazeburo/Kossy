@@ -34,11 +34,13 @@ subtest "/" => sub {
             $res = $cb->( POST "http://localhost/uri_for" );
             is $res->code, 405;
 
-            $res = $cb->( GET "http://localhost/bar" );
+            $res = $cb->( GET "http://localhost/bar?q=baz" );
             is $res->code, 200;
-            $res = $cb->( POST "http://localhost/bar" );
+            is $res->content, "ok => baz";
+            $res = $cb->( POST "http://localhost/bar?q=baz" );
             is $res->code, 200;
-            $res = $cb->( HEAD "http://localhost/bar" );
+            is $res->content, "ok => baz";
+            $res = $cb->( HEAD "http://localhost/bar?q=baz" );
             is $res->code, 405;
 
             $res = $cb->( GET "http://localhost/set_cookie" );
