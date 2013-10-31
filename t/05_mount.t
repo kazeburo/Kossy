@@ -49,7 +49,7 @@ subtest "/" => sub {
             is $res->header('Content-Type'), 'text/html; charset=UTF-8';
             is $res->header('X-Frame-Options'), 'DENY';
             is $res->header('X-XSS-Protection'), '1';
-            is $res->header('Set-Cookie'), 'foo=123456';
+            is $res->header('Set-Cookie'), 'foo=123%20456';
 
         };
 };
