@@ -21,4 +21,6 @@
 \.sw[po]$
 kossy_asset/
 \.DS_Store
-
+^nytprof*
+^Kossy-*
+MYMETA.*
