@@ -22,8 +22,7 @@ router [qw/GET POST/] => "/bar" => sub {
 
 get '/set_cookie' => sub {
     my ( $self, $c )  = @_;
-    my @param = $c->req->param('q');
-    $c->response->cookies->{foo} = '123456';
+    $c->response->cookies->{'foo'} = '123 456';
     $c->response->body("cookies are baked");
 };
  

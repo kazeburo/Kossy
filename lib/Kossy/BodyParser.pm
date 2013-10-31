@@ -5,8 +5,10 @@ use utf8;
 use 5.008_001;
 use Hash::MultiValue;
 use Stream::Buffered;
-
 use Kossy::BodyParser::OctetStream;
+
+# This BodyParser is based on tokuhirom's code
+# see https://github.com/plack/Plack/pull/434
 
 sub new {
     my $class = shift;
