@@ -1,5 +1,5 @@
 cover_db
-META.yml
+META.*
 Makefile
 blib
 inc
