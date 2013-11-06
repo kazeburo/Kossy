@@ -1,6 +1,7 @@
 language: perl
 before_install:
   - cpanm -n CPAN
+  - perl -e 'eval { require CPAN::HandleConfig; };'
   - cpanm -n Module::Install Module::Install::Repository Module::Install::ShareFile Module::Install::AuthorTests Module::Install::CPANfile
 perl:
   - 5.18
