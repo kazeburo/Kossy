@@ -4,7 +4,7 @@ all_from 'lib/Kossy.pm';
 
 requires 'parent';
 requires 'Scalar::Util';
-requires 'Plack';
+requires 'Plack'                             => '1.0029';
 requires 'Plack::Middleware::Static';
 requires 'Plack::Middleware::ReverseProxy';
 requires 'Router::Boom'                      => '0.05';
