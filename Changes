@@ -1,5 +1,9 @@
 Revision history for Perl extension Kossy
 
+0.26    Tue Nov 12 11:07:05 2013
+        - add support for changing X-Frame-Options through $c->res
+        - document parse json body
+
 0.25    Wed Nov 6 11:19:31 2013
         - non trial release
         - switch to use cpanfile
