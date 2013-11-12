@@ -1,4 +1,19 @@
 use strict;
-use Test::More tests => 1;
+use Test::More;
 
-BEGIN { use_ok 'Kossy' }
+use_ok $_ for qw(
+    Kossy
+    Kossy::Connection
+    Kossy::Exception
+    Kossy::Request
+    Kossy::Response
+    Kossy::BodyParser
+    Kossy::BodyParser::JSON
+    Kossy::BodyParser::MultiPart
+    Kossy::BodyParser::OctetStream
+    Kossy::BodyParser::UrlEncoded
+);
+
+done_testing;
+
+
