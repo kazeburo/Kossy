@@ -86,11 +86,15 @@ sub build_app {
 
     sub {
         my $env = shift;
+
         try {
             my $c = Kossy::Connection->new({
                 tx => $tx,
-                req => Kossy::Request->new($env, (parse_json_body => $self->{parse_json_body}) ),
-                res => Kossy::Response->new(200, ['Content-Type' => 'text/html; charset=UTF-8']),
+                req => Kossy::Request->new($env),
+                res => Kossy::Response->new(200, [
+                    'Content-Type' => 'text/html; charset=UTF-8',
+                    'X-Frame-Options' => 'DENY',
+                ]),
                 stash => {},
             });
             my ($match,$args) = try {
@@ -122,7 +126,7 @@ sub build_app {
                 Carp::croak "Undefined Response" if !$res;
                 my $res_t = ref($res) || '';
                 if ( Scalar::Util::blessed $res && $res->isa('Kossy::Response') ) {
-                    $response = $res;;
+                    $response = $res;
                 }
                 elsif ( Scalar::Util::blessed $res && $res->isa('Plack::Response') ) {
                     $response = bless $res, 'Kossy::Response';
@@ -456,6 +460,46 @@ These methods are the accessor to raw values. 'raw' means the value is not decod
 =head1 Kossy::Response
 
 This class is child class of Plack::Response
+
+=head1 CUSTOMIZE
+
+=over 4
+
+=item X-Frame-Options
+
+By default, Kossy outputs "X-Frame-Options: DENY". You can change this header 
+
+  get '/iframe' => sub {
+      my ($self, $c) = @_;
+      $c->res->header('X-Frame-Options','SAMEORIGIN');
+      # or remove from response header
+      # delete $c->res->headers->remove_header('X-Frame-Options');
+      ..
+  }
+
+(Default: DENY)
+
+=item kossy.request.parse_json_body
+
+If enabled, Kossy will decode json in the request body that has "application/json" content header
+
+  post '/api' => sub {
+      my ($self, $c) = @_;
+      $c->env->{kossy.request.parse_json_body} = 1;
+      my val = $c->req->param('foo'); # bar
+  }
+
+  # requrest
+  # $ua->requrest(
+  #     HTTP::Request->new(
+  #         "POST",
+  #         "http://example.com/api",
+  #         [ "Content-Type" => 'application/json', "Content-Length" => 13 ],
+  #         '{"foo":"bar"}'
+  #     )
+  # );
+
+=back
 
 =head1 AUTHOR
 

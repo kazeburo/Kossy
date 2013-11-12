@@ -42,7 +42,7 @@ sub _build_request_body_parser {
         'multipart/form-data',
         'Kossy::BodyParser::MultiPart'
     );
-    if ( $self->{parse_json_body} ) {
+    if ( $self->env->{'kossy.request.parse_json_body'} ) {
             $parser->register(
                 'application/json',
                 'Kossy::BodyParser::JSON'

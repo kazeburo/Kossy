@@ -36,6 +36,10 @@ sub escape_json {
 *request = \&req;
 *response = \&res;
 
+sub env {
+    $_[0]->{req}->env;
+}
+
 sub halt {
     my $self = shift;
     die Kossy::Exception->new(@_);

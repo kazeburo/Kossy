@@ -64,8 +64,8 @@ sub make_request {
             CONTENT_TYPE   => $content_type,
             CONTENT_LENGTH => length($content),
             QUERY_STRING => '',
+            'kossy.request.parse_json_body' => 1,
         },
-        parse_json_body => 1,
     );
     return $req;
 }

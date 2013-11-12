@@ -51,6 +51,15 @@ subtest "/" => sub {
             is $res->header('X-XSS-Protection'), '1';
             is $res->header('Set-Cookie'), 'foo=123%20456';
 
+            $res = $cb->(HTTP::Request->new(
+                "POST","http://localhost/json_api",
+                ["Content-Type"=>'application/json',"Content-Length"=> 11 ],
+                q!{"q":"abc"}!
+            ));
+            is $res->content, "json_api:abc";
+            is $res->header('X-Frame-Options'), 'SAMEORIGIN';
+
+
         };
 };
 

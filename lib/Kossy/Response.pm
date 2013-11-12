@@ -43,7 +43,7 @@ sub finalize {
     my @headers;
     $self->headers->scan(sub{
         my ($k,$v) = @_;
-        return if $k eq 'X-Frame-Options' || $k eq 'X-XSS-Protection';
+        return if $k eq 'X-XSS-Protection';
         $v =~ s/\015\012[\040|\011]+/chr(32)/ge; # replace LWS with a single SP
         $v =~ s/\015|\012//g; # remove CR and LF since the char is invalid here
         push @headers, $k, $v;
@@ -54,9 +54,7 @@ sub finalize {
         push @headers, 'Set-Cookie' => $cookie;
     }
 
-    push @headers, 
-        'X-Frame-Options' => 'DENY',
-        'X-XSS-Protection' => 1;
+    push @headers, 'X-XSS-Protection' => 1;
 
     return [
         $self->status,
