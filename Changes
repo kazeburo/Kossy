@@ -1,5 +1,8 @@
 Revision history for Perl extension Kossy
 
+0.27    Tue Nov 12 14:45:09 2013
+        - fix packaging issue
+
 0.26    Tue Nov 12 11:07:05 2013
         - add support for changing X-Frame-Options through $c->res
         - document parse json body
