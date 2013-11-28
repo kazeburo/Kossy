@@ -1,5 +1,8 @@
 Revision history for Perl extension Kossy
 
+0.28    Thu Nov 28 10:29:51 2013
+        - Kossy::Request->new_response returns Kossy::Response
+
 0.27    Tue Nov 12 14:45:09 2013
         - fix packaging issue
 

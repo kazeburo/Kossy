@@ -11,7 +11,7 @@ use Kossy::BodyParser::UrlEncoded;
 use Kossy::BodyParser::MultiPart;
 use Kossy::BodyParser::JSON;
 
-our $VERSION = '0.27';
+our $VERSION = '0.28';
 
 sub new {
     my($class, $env, %opts) = @_;
