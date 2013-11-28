@@ -41,7 +41,6 @@ sub _body {
 sub finalize {
     my $self = shift;
     Carp::croak "missing status" unless $self->status();
-
     my @headers;
     $self->headers->scan(sub{
         my ($k,$v) = @_;

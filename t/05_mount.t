@@ -59,7 +59,10 @@ subtest "/" => sub {
             is $res->content, "json_api:abc";
             is $res->header('X-Frame-Options'), 'SAMEORIGIN';
 
-
+            $res = $cb->( GET "http://localhost/new_response" );
+            is $res->code, 200;
+            is $res->content, "new_response";
+            is $res->header('X-XSS-Protection'), '1';
         };
 };
 
@@ -81,6 +84,7 @@ subtest "/mount" => sub {
             $res = $cb->( GET "http://localhost/mount/uri_for" );
             is $res->code, 200;
             is $res->content, "http://localhost/mount/uri_for";
+
         };
 };
 

@@ -34,7 +34,10 @@ post '/json_api' => sub {
     $c->response->body("json_api:". $param);
 };
 
-
+get '/new_response' => sub {
+    my ( $self, $c )  = @_;
+    $c->req->new_response(200,["Content-Type"=>"text/plain"],"new_response");
+};
 
 1;
 

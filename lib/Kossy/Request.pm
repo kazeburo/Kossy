@@ -24,6 +24,12 @@ sub new {
     }, $class;
 }
 
+sub new_response {
+    my $self = shift;
+    require Kossy::Response;
+    Kossy::Response->new(@_);
+}
+
 sub request_body_parser {
     my $self = shift;
     unless (exists $self->{request_body_parser}) {
