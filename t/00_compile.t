@@ -7,11 +7,6 @@ use_ok $_ for qw(
     Kossy::Exception
     Kossy::Request
     Kossy::Response
-    Kossy::BodyParser
-    Kossy::BodyParser::JSON
-    Kossy::BodyParser::MultiPart
-    Kossy::BodyParser::OctetStream
-    Kossy::BodyParser::UrlEncoded
 );
 
 done_testing;
