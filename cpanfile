@@ -20,11 +20,9 @@ requires 'HTTP::Message';
 requires 'Hash::MultiValue';
 requires 'Kossy::Validator'                  => '0.01';
 requires 'HTTP::Headers::Fast'               => '0.16';
-requires 'HTTP::MultiPartParser';
-requires 'URL::Encode';
+requires 'WWW::Form::UrlEncoded';
+requires 'HTTP::Entity::Parse'               => '0.03';
 requires 'Cookie::Baker';
-
-suggests 'URL::Encode::XS';
 
 on test => sub {
     requires 'Test::More';

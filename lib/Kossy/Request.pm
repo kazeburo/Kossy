@@ -6,10 +6,8 @@ use parent qw/Plack::Request/;
 use Hash::MultiValue;
 use Encode;
 use Kossy::Validator;
-use Kossy::BodyParser;
-use Kossy::BodyParser::UrlEncoded;
-use Kossy::BodyParser::MultiPart;
-use Kossy::BodyParser::JSON;
+use HTTP::Entity::Parser;
+use WWW::Form::UrlEncoded qw/parse_urlencoded/;
 
 our $VERSION = '0.28';
 
@@ -41,19 +39,19 @@ sub request_body_parser {
 sub _build_request_body_parser {
     my $self = shift;
 
-    my $parser = Kossy::BodyParser->new();
+    my $parser = HTTP::Entity::Parser->new();
     $parser->register(
         'application/x-www-form-urlencoded',
-        'Kossy::BodyParser::UrlEncoded'
+        'HTTP::Entity::Parser::UrlEncoded'
     );
     $parser->register(
         'multipart/form-data',
-        'Kossy::BodyParser::MultiPart'
+        'HTTP::Entity::Parser::MultiPart'
     );
     if ( $self->env->{'kossy.request.parse_json_body'} ) {
             $parser->register(
                 'application/json',
-                'Kossy::BodyParser::JSON'
+                'HTTP::Entity::Parser::JSON'
             );
     }
     $parser;
@@ -61,16 +59,24 @@ sub _build_request_body_parser {
 
 sub _parse_request_body {
     my $self = shift;
-    $self->request_body_parser->parse($self->env);
+    my ($params,$uploads) = $self->request_body_parser->parse($self->env);
+    $self->env->{'kossy.request.body_parameters'} = $params;
+
+    my $upload_hmv = Hash::MultiValue->new();
+    while ( my ($k,$v) = splice @$uploads, 0, 2 ) {
+        my %copy = %$v;
+        $copy{headers} = HTTP::Headers::Fast->new(@{$v->{headers}});
+        $upload_hmv->add($k, Plack::Request::Upload->new(%copy));
+    }
+    $self->env->{'plack.request.upload'} = $upload_hmv;
 }
 
 sub uploads {
     my $self = shift;
-    unless ($self->env->{'kossy.request.upload_parameters'}) {
+    unless ($self->env->{'plack.request.upload'}) {
         $self->_parse_request_body;
     }
-    $self->env->{'plack.request.upload'} ||= 
-        Hash::MultiValue->new(@{$self->env->{'kossy.request.upload_parameters'}});
+    $self->env->{'plack.request.upload'};
 }
 
 sub body_parameters {
@@ -114,7 +120,7 @@ sub _query_parameters {
     my $self = shift;
     unless ( $self->env->{'kossy.request.query_parameter'} ) {
         $self->env->{'kossy.request.query_parameters'} = 
-            URL::Encode::url_params_flat($self->env->{'QUERY_STRING'});
+            [parse_urlencoded($self->env->{'QUERY_STRING'})];
     }
     return $self->env->{'kossy.request.query_parameters'};
 }
