@@ -9,7 +9,7 @@ use Kossy::Validator;
 use HTTP::Entity::Parser;
 use WWW::Form::UrlEncoded qw/parse_urlencoded/;
 
-our $VERSION = '0.28';
+our $VERSION = '0.31';
 
 sub new {
     my($class, $env, %opts) = @_;
