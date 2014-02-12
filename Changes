@@ -1,5 +1,8 @@
 Revision history for Perl extension Kossy
 
+0.30    Wed Feb 12 13:46:15 2013
+        - replace Kossy::BodyParser with HTTP::Entity::Parser
+
 0.28    Thu Nov 28 10:29:51 2013
         - Kossy::Request->new_response returns Kossy::Response
 
