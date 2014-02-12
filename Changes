@@ -1,5 +1,8 @@
 Revision history for Perl extension Kossy
 
+0.31    Wed Feb 12 13:51:54 2013
+        - fix packaging issue. change version in all modules
+
 0.30    Wed Feb 12 13:46:15 2013
         - replace Kossy::BodyParser with HTTP::Entity::Parser
 
