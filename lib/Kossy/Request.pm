@@ -59,6 +59,12 @@ sub _build_request_body_parser {
 
 sub _parse_request_body {
     my $self = shift;
+    if ( !$self->env->{CONTENT_TYPE} ) {
+        $self->env->{'kossy.request.body_parameters'} = [];
+        $self->env->{'plack.request.upload'} = Hash::MultiValue->new();
+        return;
+    }
+
     my ($params,$uploads) = $self->request_body_parser->parse($self->env);
     $self->env->{'kossy.request.body_parameters'} = $params;
 
