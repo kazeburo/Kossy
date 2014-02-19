@@ -1,5 +1,8 @@
 Revision history for Perl extension Kossy
 
+0.34    Wed Feb 20 2:18:18 2014
+        - avoid 0 0 length query_string in uri_for
+
 0.33    Wed Feb 20 1:12:34 2014
         - skip parsing body if content_type is null
         - requires HTTTP:Entity::Parser 0.11
