@@ -100,9 +100,9 @@ sub parameters {
 }
 
 sub _decode_parameters {
-    my ($self, @flatten) = @_;
+    my $self = shift;
     my @decoded;
-    while ( my ($k, $v) = splice @flatten, 0, 2 ) {
+    while ( my ($k, $v) = splice @_, 0, 2 ) {
         push @decoded, Encode::decode_utf8($k), Encode::decode_utf8($v);
     }
     return Hash::MultiValue->new(@decoded);
@@ -115,10 +115,9 @@ sub _body_parameters {
     }
     return $self->env->{'kossy.request.body_parameters'};    
 }
-
 sub _query_parameters {
     my $self = shift;
-    unless ( $self->env->{'kossy.request.query_parameter'} ) {
+    unless ( $self->env->{'kossy.request.query_parameters'} ) {
         $self->env->{'kossy.request.query_parameters'} = 
             [parse_urlencoded($self->env->{'QUERY_STRING'})];
     }
