@@ -22,7 +22,7 @@ requires 'Kossy::Validator'                  => '0.01';
 requires 'HTTP::Headers::Fast'               => '0.16';
 requires 'WWW::Form::UrlEncoded'             => '0.13';
 requires 'WWW::Form::UrlEncoded::XS'         => '0.13';
-requires 'HTTP::Entity::Parser'              => '0.10';
+requires 'HTTP::Entity::Parser'              => '0.11';
 requires 'Cookie::Baker';
 
 on test => sub {
