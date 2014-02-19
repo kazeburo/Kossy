@@ -22,7 +22,7 @@ use Kossy::Connection;
 use Kossy::Request;
 use Kossy::Response;
 
-our $VERSION = '0.31';
+our $VERSION = '0.32';
 our @EXPORT = qw/new root_dir psgi build_app _router _connect get post router filter _wrap_filter/;
 
 sub new {

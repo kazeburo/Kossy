@@ -9,7 +9,7 @@ use Class::Accessor::Lite (
 use JSON qw//;
 use Kossy::Exception;
 
-our $VERSION = '0.31';
+our $VERSION = '0.32';
 my $_JSON = JSON->new()->allow_blessed(1)->convert_blessed(1)->ascii(1);
 
 # for IE7 JSON venularity.

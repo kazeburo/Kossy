@@ -7,7 +7,7 @@ use Encode;
 use HTTP::Headers::Fast;
 use Cookie::Baker;
 
-our $VERSION = '0.31';
+our $VERSION = '0.32';
 
 sub headers {
     my $self = shift;
