@@ -89,6 +89,11 @@ subtest "/mount" => sub {
             is $res->code, 200;
             is $res->content, "http://localhost/mount/uri_for?a=b";
 
+            $res = $cb->( GET "http://localhost/mount/uri_for_with_noparam" );
+            is $res->code, 200;
+            is $res->content, "http://localhost/mount/uri_for";
+
+
         };
 };
 

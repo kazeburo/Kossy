@@ -180,8 +180,11 @@ sub uri_for {
      my $base = $uri->path eq "/"
               ? ""
               : $uri->path;
-     $uri->path( $base . $path );
-     $uri->query(build_urlencoded($args)) if $args;
+     my $query = '';
+     if ( $args ) {
+         $query = build_urlencoded($args);
+     }
+     $uri->path_query( $base . $path . (length $query ? "?$query" : ""));
      $uri;
 }
 

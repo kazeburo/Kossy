@@ -19,6 +19,12 @@ get "/uri_for_with_param" => sub {
     $c->response->body( $c->request->uri_for("/uri_for",['a'=>'b'])->as_string );
 };
 
+get "/uri_for_with_noparam" => sub {
+    my ( $self, $c )  = @_;
+    $c->response->body( $c->request->uri_for("/uri_for",[])->as_string );
+};
+
+
 router [qw/GET POST/] => "/bar" => sub {
     my ( $self, $c )  = @_;
     my $param = $c->req->param('q');
