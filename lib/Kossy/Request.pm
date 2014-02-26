@@ -8,6 +8,7 @@ use Encode;
 use Kossy::Validator;
 use HTTP::Entity::Parser;
 use WWW::Form::UrlEncoded qw/parse_urlencoded_arrayref build_urlencoded_utf8/;
+use Cookie::Baker;
 
 our $VERSION = '0.34';
 
@@ -27,6 +28,22 @@ sub new_response {
     require Kossy::Response;
     Kossy::Response->new(@_);
 }
+
+sub cookies {
+    my $self = shift;
+
+    return {} unless $self->env->{HTTP_COOKIE};
+
+    # HTTP_COOKIE hasn't changed: reuse the parsed cookie
+    if (   $self->env->{'plack.cookie.parsed'}
+        && $self->env->{'plack.cookie.string'} eq $self->env->{HTTP_COOKIE}) {
+        return $self->env->{'plack.cookie.parsed'};
+    }
+
+    $self->env->{'plack.cookie.string'} = $self->env->{HTTP_COOKIE};
+    $self->env->{'plack.cookie.parsed'} = crush_cookie($self->env->{'plack.cookie.string'});
+}
+
 
 sub request_body_parser {
     my $self = shift;
