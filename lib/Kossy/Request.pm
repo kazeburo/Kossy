@@ -10,7 +10,7 @@ use HTTP::Entity::Parser;
 use WWW::Form::UrlEncoded qw/parse_urlencoded_arrayref build_urlencoded_utf8/;
 use Cookie::Baker;
 
-our $VERSION = '0.34';
+our $VERSION = '0.36';
 
 sub new {
     my($class, $env, %opts) = @_;
