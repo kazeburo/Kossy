@@ -63,6 +63,11 @@ subtest "/" => sub {
             is $res->code, 200;
             is $res->content, "new_response";
             is $res->header('X-XSS-Protection'), '1';
+
+            $res = $cb->( GET "http://localhost/args/foo" );
+            is $res->code, 200;
+            is $res->content, "is_decoded:1";
+
         };
 };
 

@@ -50,5 +50,11 @@ get '/new_response' => sub {
     $c->req->new_response(200,["Content-Type"=>"text/plain"],"new_response");
 };
 
+use Encode;
+get '/args/:id' => sub {
+    my ( $self, $c )  = @_;
+    $c->response->body( "is_decoded:". ((Encode::is_utf8($c->args->{id})) ? '1' : '0') );
+};
+
 1;
 

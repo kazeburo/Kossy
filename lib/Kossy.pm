@@ -118,7 +118,8 @@ sub build_app {
             
             my $code = $match->{__action__};
             my $filters = $match->{__filter__} || [];
-            $c->args($args);
+            my %args = map { $_ => Encode::decode_utf8($args->{$_}) } keys %$args;
+            $c->args(\%args);
             my $app = sub {
                 my ($self, $c) = @_;
                 my $response;
