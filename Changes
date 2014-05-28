@@ -1,5 +1,8 @@
 Revision history for Perl extension Kossy
 
+0.35    Wed May 28 23:54:55 2014
+        - decode path args as utf8. Router::Boom encodes path?
+
 0.34    Wed Feb 20 2:18:18 2014
         - avoid 0 0 length query_string in uri_for
 
