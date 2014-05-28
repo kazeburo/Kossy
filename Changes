@@ -1,5 +1,8 @@
 Revision history for Perl extension Kossy
 
+0.37    Thu May 29 1:35:15 2014
+        - fix packaging issue. META file did not updated
+
 0.36    Thu May 29 0:43:12 2014
         - fix packaging issue. change version in all modules
 
