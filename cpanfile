@@ -1,3 +1,4 @@
+requires 'perl'                              => '5.008004';
 requires 'parent';
 requires 'Scalar::Util';
 requires 'Plack'                             => '1.0029';
@@ -25,8 +26,10 @@ requires 'WWW::Form::UrlEncoded::XS'         => '0.19';
 requires 'HTTP::Entity::Parser'              => '0.12';
 requires 'Cookie::Baker'                     => '0.03'; 
 requires 'Cookie::Baker::XS'                 => '0.03';
+
 on test => sub {
-    requires 'Test::More';
-}
+    requires 'Test::More'                    => '0.98';
+};
+
 
 

@@ -68,12 +68,13 @@
             "Try::Tiny" : "0.09",
             "WWW::Form::UrlEncoded" : "0.19",
             "WWW::Form::UrlEncoded::XS" : "0.19",
-            "parent" : "0"
+            "parent" : "0",
+            "perl" : "5.008004"
          }
       },
       "test" : {
          "requires" : {
-            "Test::More" : "0"
+            "Test::More" : "0.98"
          }
       }
    },

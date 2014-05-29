@@ -2,6 +2,7 @@ package Kossy;
 
 use strict;
 use warnings;
+use 5.008004;
 use utf8;
 use Carp qw//;
 use Scalar::Util qw//;
