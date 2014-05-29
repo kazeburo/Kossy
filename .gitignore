@@ -14,3 +14,11 @@ MANIFEST.bak
 .DS_Store
 MYMETA.*
 nytprof*
+/Kossy-*
+/.build
+/_build_params
+/Build
+/Build.bat
+!Build/
+!META.json
+!LICENSE

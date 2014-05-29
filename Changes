@@ -1,5 +1,7 @@
 Revision history for Perl extension Kossy
 
+{{$NEXT}}
+
 0.37    Thu May 29 1:35:15 2014
         - fix packaging issue. META file did not updated
 
