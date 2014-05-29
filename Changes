@@ -2,6 +2,10 @@ Revision history for Perl extension Kossy
 
 {{$NEXT}}
 
+0.38 2014-05-29T06:35:40Z
+
+        - re-packaging with Minilla
+
 0.37    Thu May 29 1:35:15 2014
         - fix packaging issue. META file did not updated
 
