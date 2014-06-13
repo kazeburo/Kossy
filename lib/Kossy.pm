@@ -487,7 +487,7 @@ If enabled, Kossy will decode json in the request body that has "application/jso
 
   post '/api' => sub {
       my ($self, $c) = @_;
-      $c->env->{kossy.request.parse_json_body} = 1;
+      $c->env->{'kossy.request.parse_json_body'} = 1;
       my val = $c->req->param('foo'); # bar
   }
 
