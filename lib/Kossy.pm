@@ -273,7 +273,7 @@ Kossy - Sinatra-ish Simple and Clear web application framework
 
 =head1 DESCRIPTION
 
-Kossy is Sinatra-ish Simple and Clear web application framework, which is based upon L<Plack>, L<Router::Simple>, L<Text::Xslate> and build-in Form-Validator. That's suitable for small application and rapid development.
+Kossy is Sinatra-ish Simple and Clear web application framework, which is based upon L<Plack>, L<Router::Boom>, L<Text::Xslate> and build-in Form-Validator. That's suitable for small application and rapid development.
 
 =head1 Kossy class
 
