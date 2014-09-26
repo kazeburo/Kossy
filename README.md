@@ -40,7 +40,7 @@ Kossy - Sinatra-ish Simple and Clear web application framework
 
 # DESCRIPTION
 
-Kossy is Sinatra-ish Simple and Clear web application framework, which is based upon [Plack](https://metacpan.org/pod/Plack), [Router::Simple](https://metacpan.org/pod/Router::Simple), [Text::Xslate](https://metacpan.org/pod/Text::Xslate) and build-in Form-Validator. That's suitable for small application and rapid development.
+Kossy is Sinatra-ish Simple and Clear web application framework, which is based upon [Plack](https://metacpan.org/pod/Plack), [Router::Boom](https://metacpan.org/pod/Router::Boom), [Text::Xslate](https://metacpan.org/pod/Text::Xslate) and build-in Form-Validator. That's suitable for small application and rapid development.
 
 # Kossy class
 
