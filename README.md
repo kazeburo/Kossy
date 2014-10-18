@@ -40,7 +40,7 @@ Kossy - Sinatra-ish Simple and Clear web application framework
 
 # DESCRIPTION
 
-Kossy is Sinatra-ish Simple and Clear web application framework, which is based upon [Plack](https://metacpan.org/pod/Plack), [Router::Simple](https://metacpan.org/pod/Router::Simple), [Text::Xslate](https://metacpan.org/pod/Text::Xslate) and build-in Form-Validator. That's suitable for small application and rapid development.
+Kossy is Sinatra-ish Simple and Clear web application framework, which is based upon [Plack](https://metacpan.org/pod/Plack), [Router::Boom](https://metacpan.org/pod/Router::Boom), [Text::Xslate](https://metacpan.org/pod/Text::Xslate) and build-in Form-Validator. That's suitable for small application and rapid development.
 
 # Kossy class
 
@@ -169,7 +169,7 @@ This class is child class of Plack::Request, decode query/body parameters automa
 
 - validator($rule):Kossy::Validaor::Result
 
-    validate parameters using [Kossy::Validatar](https://metacpan.org/pod/Kossy::Validatar)
+    validate parameters using [Kossy::Validator](https://metacpan.org/pod/Kossy::Validator)
 
         my $result = $c->req->validator([
           'q' => [['NOT_NULL','query must be defined']],
@@ -217,7 +217,7 @@ This class is child class of Plack::Response
 
         post '/api' => sub {
             my ($self, $c) = @_;
-            $c->env->{kossy.request.parse_json_body} = 1;
+            $c->env->{'kossy.request.parse_json_body'} = 1;
             my val = $c->req->param('foo'); # bar
         }
 
