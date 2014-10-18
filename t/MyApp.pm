@@ -56,5 +56,6 @@ get '/args/:id' => sub {
     $c->response->body( "is_decoded:". ((Encode::is_utf8($c->args->{id})) ? '1' : '0') );
 };
 
+
 1;
 

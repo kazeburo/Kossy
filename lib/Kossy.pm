@@ -5,7 +5,6 @@ use warnings;
 use 5.008004;
 use utf8;
 use Carp qw//;
-use Scalar::Util qw//;
 use Cwd qw//;
 use File::Basename qw//;
 use Text::Xslate;
@@ -17,7 +16,9 @@ use Class::Accessor::Lite (
     new => 0,
     rw => [qw/root_dir/]
 );
+use Cache::LRU;
 use base qw/Exporter/;
+use HTTP::Headers::Fast;
 use Kossy::Exception;
 use Kossy::Connection;
 use Kossy::Request;
@@ -25,6 +26,12 @@ use Kossy::Response;
 
 our $VERSION = '0.38';
 our @EXPORT = qw/new root_dir psgi build_app _router _connect get post router filter _wrap_filter/;
+
+our $XSLATE_CACHE = 1;
+our $SECURITY_HEADER = 1;
+
+#XXX
+HTTP::Headers::Fast::_standardize_field_name('X-Frame-Options');
 
 sub new {
     my $class = shift;
@@ -67,6 +74,9 @@ sub build_app {
     #router
     my $router = Router::Boom->new;
     $router->add($_ => $self->_router->{$_} ) for keys %{$self->_router};
+    my $xslate_cache_local = $XSLATE_CACHE;
+    my $security_header_local = $SECURITY_HEADER;
+    my %match_cache;
 
     #xslate
     my $fif = HTML::FillInForm::Lite->new();
@@ -83,32 +93,40 @@ sub build_app {
                 }
             }
         },
+        cache => $xslate_cache_local
     );
 
     sub {
         my $env = shift;
-
+        local $Kossy::Response::SECURITY_HEADER = $security_header_local;
         try {
+            my $header = bless {
+                'content-type' => 'text/html; charset=UTF-8',
+                $security_header_local ? ('x-frame-options' => 'DENY') : (),
+            }, 'HTTP::Headers::Fast';
             my $c = Kossy::Connection->new({
                 tx => $tx,
                 req => Kossy::Request->new($env),
-                res => Kossy::Response->new(200, [
-                    'Content-Type' => 'text/html; charset=UTF-8',
-                    'X-Frame-Options' => 'DENY',
-                ]),
+                res => Kossy::Response->new(200, $header),
                 stash => {},
             });
+            my $method = uc($env->{REQUEST_METHOD});
+            my $cache_key = $method . '-' . $env->{PATH_INFO};
             my ($match,$args) = try {
+                if ( exists $match_cache{$cache_key} ) {
+                    return @{$match_cache{$cache_key}};
+                }
                 my $path_info = Encode::decode_utf8( $env->{PATH_INFO},  Encode::FB_CROAK | Encode::LEAVE_SRC );
                 my @match = $router->match($path_info);
                 if ( !@match ) {
                     $c->halt(404);
                 }
-
-                my $method = uc $env->{REQUEST_METHOD};
+                
                 if ( !exists $match[0]->{$method}) {
                     $c->halt(405);
                 }
+                $match_cache{$cache_key} = [$match[0]->{$method},$match[1]]
+                    if ! scalar keys %{$match[1]};
                 return ($match[0]->{$method},$match[1]);
             } catch {
                 if ( ref $_ && ref $_ eq 'Kossy::Exception' ) {
@@ -125,12 +143,12 @@ sub build_app {
                 my ($self, $c) = @_;
                 my $response;
                 my $res = $code->($self, $c);
-                Carp::croak "Undefined Response" if !$res;
+                Carp::croak "Undefined Response" if ! defined $res;
                 my $res_t = ref($res) || '';
-                if ( Scalar::Util::blessed $res && $res->isa('Kossy::Response') ) {
+                if ( $res_t eq 'Kossy::Response' ) {
                     $response = $res;
                 }
-                elsif ( Scalar::Util::blessed $res && $res->isa('Plack::Response') ) {
+                elsif ( $res_t eq 'Plack::Response' ) {
                     $response = bless $res, 'Kossy::Response';
                 }
                 elsif ( $res_t eq 'ARRAY' ) {

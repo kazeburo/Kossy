@@ -9,6 +9,18 @@ use Cookie::Baker;
 
 our $VERSION = '0.38';
 
+our $SECURITY_HEADER = 1;
+
+sub new {
+    my ($class, $rc, $headers, $content) = @_;
+    my $self = bless {
+        defined $rc ? ( status => $rc ) : (),
+        defined $content ? ( body => $content ) : (),
+    };
+    $self->headers($headers) if defined $headers;
+    $self;
+}
+
 sub headers {
     my $self = shift;
 
@@ -44,7 +56,7 @@ sub finalize {
     my @headers;
     $self->headers->scan(sub{
         my ($k,$v) = @_;
-        return if $k eq 'X-XSS-Protection';
+        return if $SECURITY_HEADER && $k eq 'X-XSS-Protection';
         $v =~ s/\015\012[\040|\011]+/chr(32)/ge; # replace LWS with a single SP
         $v =~ s/\015|\012//g; # remove CR and LF since the char is invalid here
         push @headers, $k, $v;
@@ -55,7 +67,7 @@ sub finalize {
         push @headers, 'Set-Cookie' => $cookie;
     }
 
-    push @headers, 'X-XSS-Protection' => 1;
+    push @headers, 'X-XSS-Protection' => 1 if $SECURITY_HEADER;
 
     return [
         $self->status,
