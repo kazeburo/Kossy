@@ -16,7 +16,6 @@ use Class::Accessor::Lite (
     new => 0,
     rw => [qw/root_dir/]
 );
-use Cache::LRU;
 use base qw/Exporter/;
 use HTTP::Headers::Fast;
 use Kossy::Exception;
