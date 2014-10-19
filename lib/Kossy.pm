@@ -27,6 +27,7 @@ our $VERSION = '0.38';
 our @EXPORT = qw/new root_dir psgi build_app _router _connect get post router filter _wrap_filter/;
 
 our $XSLATE_CACHE = 1;
+our $XSLATE_CACHE_DIR;
 our $SECURITY_HEADER = 1;
 
 #XXX
@@ -74,6 +75,7 @@ sub build_app {
     my $router = Router::Boom->new;
     $router->add($_ => $self->_router->{$_} ) for keys %{$self->_router};
     my $xslate_cache_local = $XSLATE_CACHE;
+    my $xslate_cache_dir_local = $XSLATE_CACHE_DIR;
     my $security_header_local = $SECURITY_HEADER;
     my %match_cache;
 
@@ -92,12 +94,13 @@ sub build_app {
                 }
             }
         },
-        cache => $xslate_cache_local
+        cache => $xslate_cache_local,
+        defined $xslate_cache_dir_local ? ( cache_dir => $xslate_cache_dir_local ) : (),
     );
 
     sub {
         my $env = shift;
-        local $Kossy::Response::SECURITY_HEADER = $security_header_local;
+        $Kossy::Response::SECURITY_HEADER = $security_header_local;
         try {
             my $header = bless {
                 'content-type' => 'text/html; charset=UTF-8',
@@ -517,6 +520,27 @@ If enabled, Kossy will decode json in the request body that has "application/jso
   #         '{"foo":"bar"}'
   #     )
   # );
+
+=item $XSLATE_CACHE, $XSLATE_CACHE_DIR
+
+Change xslate's cache level and cache directory.
+
+  local $Kossy::XSLATE_CACHE = 2;
+  local $Kossy::XSLATE_CACHE_DIR = $dir;
+  my $app = MyApp::Web->psgi;
+
+By default, $XSLATE_CACHE is 1, $XSLATE_CACHE_DIR is undef. use Xslate's default.
+
+=item $SECURITY_HEADER
+
+If disabled, Kossy does not set X-Frame-Options and X-XSS-Protection. enabled by default.
+
+  local $Kossy::SECURITY_HEADER = 0;
+  my $app = MyApp::Web->psgi;
+
+Can not change $Kossy::SECURITY_HEADER in your WebApp. It's need to set at build time. 
+
+This is useful for the benchmark :-)
 
 =back
 

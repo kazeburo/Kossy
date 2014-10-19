@@ -13,11 +13,19 @@ our $SECURITY_HEADER = 1;
 
 sub new {
     my ($class, $rc, $headers, $content) = @_;
+    if ( defined $headers ) {
+        if (ref $headers eq 'ARRAY') {
+            Carp::carp("Odd number of headers") if @$headers % 2 != 0;
+            $headers = HTTP::Headers::Fast->new(@$headers);
+        } elsif (ref $headers eq 'HASH') {
+            $headers = HTTP::Headers::Fast->new(%$headers);
+        }
+    }
     my $self = bless {
         defined $rc ? ( status => $rc ) : (),
         defined $content ? ( body => $content ) : (),
-    };
-    $self->headers($headers) if defined $headers;
+        defined $headers ? ( headers => $headers ) : (),
+    }, $class;
     $self;
 }
 
@@ -53,6 +61,7 @@ sub _body {
 sub finalize {
     my $self = shift;
     Carp::croak "missing status" unless $self->status();
+
     my @headers;
     $self->headers->scan(sub{
         my ($k,$v) = @_;

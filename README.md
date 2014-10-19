@@ -231,6 +231,27 @@ This class is child class of Plack::Response
         #     )
         # );
 
+- $XSLATE\_CACHE, $XSLATE\_CACHE\_DIR
+
+    Change xslate's cache level and cache directory.
+
+        local $Kossy::XSLATE_CACHE = 2;
+        local $Kossy::XSLATE_CACHE_DIR = $dir;
+        my $app = MyApp::Web->psgi;
+
+    By default, $XSLATE\_CACHE is 1, $XSLATE\_CACHE\_DIR is undef. use Xslate's default.
+
+- $SECURITY\_HEADER
+
+    If disabled, Kossy does not set X-Frame-Options and X-XSS-Protection. enabled by default.
+
+        local $Kossy::SECURITY_HEADER = 0;
+        my $app = MyApp::Web->psgi;
+
+    Can not change $Kossy::SECURITY\_HEADER in your WebApp. It's need to set at build time. 
+
+    This is useful for the benchmark :-)
+
 # AUTHOR
 
 Masahiro Nagano <kazeburo {at} gmail.com>
