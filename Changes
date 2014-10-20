@@ -2,6 +2,14 @@ Revision history for Perl extension Kossy
 
 {{$NEXT}}
 
+0.39 2014-10-20T05:46:07Z
+
+        - fix some document bug (Thanks hisaichi5518, avvmoto, niku4i)
+        - improve perfomance
+          cache router result
+          add Kossy::Header
+          render json
+
 0.38 2014-05-29T06:35:40Z
 
         - re-packaging with Minilla

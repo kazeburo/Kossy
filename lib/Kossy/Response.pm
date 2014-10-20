@@ -7,7 +7,7 @@ use Encode;
 use Kossy::Headers;
 use Cookie::Baker;
 
-our $VERSION = '0.38';
+our $VERSION = '0.39';
 
 sub new {
     my ($class, $rc, $headers, $content) = @_;

@@ -7,7 +7,7 @@ use warnings;
 use 5.00800;
 use Carp ();
 
-our $VERSION = '0.17';
+our $VERSION = '0.39';
 
 our $TRANSLATE_UNDERSCORE = 1;
 our $SECURITY_HEADER = 1;
