@@ -557,6 +557,13 @@ L<Dancer>
 
 L<Kossy::Validator>
 
+=head1 LICENSE of HTTP::Headers::Fast
+
+Kossy::Headers uses L<HTTP::Headers::Fast> code. Here is LICENSE of HTTP::Headers::Fast
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
 =head1 LICENSE
 
 This library is free software; you can redistribute it and/or modify

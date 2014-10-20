@@ -268,6 +268,13 @@ Kossy is small waf, that has only 400 lines code. so easy to reading framework c
 
 [Kossy::Validator](https://metacpan.org/pod/Kossy::Validator)
 
+# LICENSE of HTTP::Headers::Fast
+
+Kossy::Headers uses [HTTP::Headers::Fast](https://metacpan.org/pod/HTTP::Headers::Fast) code. Here is LICENSE of HTTP::Headers::Fast
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
 # LICENSE
 
 This library is free software; you can redistribute it and/or modify
