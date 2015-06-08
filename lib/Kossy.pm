@@ -447,9 +447,9 @@ build absolute URI with path and $args
 
   my $uri = $c->req->uri_for('/login',[ arg => 'Hello']);  
 
-=item validator($rule):Kossy::Validaor::Result
+=item validator($rule):Kossy::Validator::Result
 
-validate parameters using L<Kossy::Validatar>
+validate parameters using L<Kossy::Validator>
 
   my $result = $c->req->validator([
     'q' => [['NOT_NULL','query must be defined']],
