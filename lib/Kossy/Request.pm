@@ -5,7 +5,7 @@ use warnings;
 use parent qw/Plack::Request/;
 use Hash::MultiValue;
 use Encode;
-use Kossy::Headers;
+use HTTP::Headers::Fast;
 use Kossy::Validator;
 use HTTP::Entity::Parser;
 use WWW::Form::UrlEncoded qw/parse_urlencoded_arrayref build_urlencoded_utf8/;
@@ -100,7 +100,7 @@ sub _parse_request_body {
     my $upload_hmv = Hash::MultiValue->new();
     while ( my ($k,$v) = splice @$uploads, 0, 2 ) {
         my %copy = %$v;
-        $copy{headers} = Kossy::Headers->new(@{$v->{headers}});
+        $copy{headers} = HTTP::Headers::Fast->new(@{$v->{headers}});
         $upload_hmv->add($k, Plack::Request::Upload->new(%copy));
     }
     $self->env->{'plack.request.upload'} = $upload_hmv;

@@ -4,19 +4,22 @@ use strict;
 use warnings;
 use parent qw/Plack::Response/;
 use Encode;
-use Kossy::Headers;
+use HTTP::Headers::Fast;
 use Cookie::Baker;
 
 our $VERSION = '0.39';
+
+our $DIRECT;
+our $SECURITY_HEADER = 1;
 
 sub new {
     my ($class, $rc, $headers, $content) = @_;
     if ( defined $headers ) {
         if (ref $headers eq 'ARRAY') {
             Carp::carp("Odd number of headers") if @$headers % 2 != 0;
-            $headers = Kossy::Headers->new(@$headers);
+            $headers = HTTP::Headers::Fast->new(@$headers);
         } elsif (ref $headers eq 'HASH') {
-            $headers = Kossy::Headers->new(%$headers);
+            $headers = HTTP::Headers::Fast->new(%$headers);
         }
     }
     bless {
@@ -33,13 +36,13 @@ sub headers {
         my $headers = shift;
         if (ref $headers eq 'ARRAY') {
             Carp::carp("Odd number of headers") if @$headers % 2 != 0;
-            $headers = Kossy::Headers->new(@$headers);
+            $headers = HTTP::Headers::Fast->new(@$headers);
         } elsif (ref $headers eq 'HASH') {
-            $headers = Kossy::Headers->new(%$headers);
+            $headers = HTTP::Headers::Fast->new(%$headers);
         }
         return $self->{headers} = $headers;
     } else {
-        return $self->{headers} ||= Kossy::Headers->new();
+        return $self->{headers} ||= HTTP::Headers::Fast->new();
     }
 }
 
@@ -57,18 +60,28 @@ sub _body {
 
 sub finalize {
     my $self = shift;
+    return $DIRECT if $DIRECT;
     Carp::croak "missing status" unless $self->status();
 
-    my $headers = $self->headers->as_psgi;
+    my @headers;
+    $self->headers->scan(sub{
+        my ($k,$v) = @_;
+        return if $SECURITY_HEADER && $k eq 'X-XSS-Protection';
+        $v =~ s/\015\012[\040|\011]+/chr(32)/ge; # replace LWS with a single SP
+        $v =~ s/\015|\012//g; # remove CR and LF since the char is invalid here
+        push @headers, $k, $v;
+    });
 
     while (my($name, $val) = each %{$self->cookies}) {
         my $cookie = bake_cookie($name, $val);
-        push @$headers, 'Set-Cookie' => $cookie;
+        push @headers, 'Set-Cookie' => $cookie;
     }
+
+    push @headers, 'X-XSS-Protection' => 1 if $SECURITY_HEADER;
 
     return [
         $self->status,
-        $headers,
+        \@headers,
         $self->_body,
     ];
 }

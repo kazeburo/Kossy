@@ -21,7 +21,7 @@ use Kossy::Exception;
 use Kossy::Connection;
 use Kossy::Request;
 use Kossy::Response;
-use Kossy::Headers;
+use HTTP::Headers::Fast;
 
 our $VERSION = '0.39';
 our @EXPORT = qw/new root_dir psgi build_app _router _connect get post router filter _wrap_filter/;
@@ -29,6 +29,9 @@ our @EXPORT = qw/new root_dir psgi build_app _router _connect get post router fi
 our $XSLATE_CACHE = 1;
 our $XSLATE_CACHE_DIR;
 our $SECURITY_HEADER = 1;
+
+# cache underscore translation
+HTTP::Headers::Fast::_standardize_field_name('X-Frame-Options');
 
 sub new {
     my $class = shift;
@@ -97,12 +100,12 @@ sub build_app {
 
     sub {
         my $env = shift;
-        $Kossy::Headers::SECURITY_HEADER = $security_header_local;
+        $Kossy::Response::SECURITY_HEADER = $security_header_local;
         try {
             my $header = bless {
                 'content-type' => 'text/html; charset=UTF-8',
                 $security_header_local ? ('x-frame-options' => 'DENY') : (),
-            }, 'Kossy::Headers';
+            }, 'HTTP::Headers::Fast';
             my $c = Kossy::Connection->new({
                 tx => $tx,
                 req => Kossy::Request->new($env),
@@ -167,6 +170,7 @@ sub build_app {
                 $app = $self->_wrap_filter($filter,$app);
             }
             # do all
+            local $Kossy::Response::DIRECT;
             $app->($self, $c)->finalize;
         } catch {
             if ( ref $_ && ref $_ eq 'Kossy::Exception' ) {
