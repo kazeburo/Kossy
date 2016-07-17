@@ -66,8 +66,11 @@ subtest "/" => sub {
 
             $res = $cb->( GET "http://localhost/args/foo" );
             is $res->code, 200;
-            is $res->content, "is_decoded:1";
+            is $res->content, "is_decoded:1,foo";
 
+            $res = $cb->( GET "http://localhost/args/%E3%81%82%E3%81%84%E3%81%86" );
+            is $res->code, 200;
+            is $res->content, "is_decoded:1,あいう";
         };
 };
 
