@@ -53,7 +53,8 @@ get '/new_response' => sub {
 use Encode;
 get '/args/:id' => sub {
     my ( $self, $c )  = @_;
-    $c->response->body( "is_decoded:". ((Encode::is_utf8($c->args->{id})) ? '1' : '0') );
+    my $id = $c->args->{id};
+    $c->response->body( "is_decoded:". ((Encode::is_utf8($id)) ? '1' : '0') . ",$id" );
 };
 
 
