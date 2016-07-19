@@ -2,6 +2,10 @@ Revision history for Perl extension Kossy
 
 {{$NEXT}}
 
+0.40 2016-07-19T15:03:36Z
+
+        - Fix multibyte path handling (Thanks songmu)
+
 0.39 2014-10-20T05:46:07Z
 
         - fix some document bug (Thanks hisaichi5518, avvmoto, niku4i)
