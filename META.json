@@ -4,7 +4,7 @@
       "Masahiro Nagano <kazeburo {at} gmail.com>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v2.4.1, CPAN::Meta::Converter version 2.141170",
+   "generated_by" : "Minilla/v2.4.1, CPAN::Meta::Converter version 2.150005",
    "license" : [
       "perl_5"
    ],
@@ -97,6 +97,9 @@
       "Nobuhiro Nikushi <deneb.ge@gmail.com>",
       "Yutaka Imoto <yutaka.imoto@dena.com>",
       "hisaichi5518 <hisaichi5518@gmail.com>",
+      "Syohei YOSHIDA <syohex@gmail.com>",
+      "Songmu <y.songmu@gmail.com>",
       "Masahiro Nagano <kazeburo@gmail.com>"
-   ]
+   ],
+   "x_serialization_backend" : "JSON::PP version 2.27203"
 }

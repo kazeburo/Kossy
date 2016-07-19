@@ -167,9 +167,9 @@ This class is child class of Plack::Request, decode query/body parameters automa
 
         my $uri = $c->req->uri_for('/login',[ arg => 'Hello']);  
 
-- validator($rule):Kossy::Validaor::Result
+- validator($rule):Kossy::Validator::Result
 
-    validate parameters using [Kossy::Validatar](https://metacpan.org/pod/Kossy::Validatar)
+    validate parameters using [Kossy::Validator](https://metacpan.org/pod/Kossy::Validator)
 
         my $result = $c->req->validator([
           'q' => [['NOT_NULL','query must be defined']],

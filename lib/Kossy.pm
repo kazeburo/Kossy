@@ -139,7 +139,13 @@ sub build_app {
             
             my $code = $match->{__action__};
             my $filters = $match->{__filter__} || [];
-            $c->args({%$args});
+            if ( $] == 5.020000 || $] == 5.020100 ) {
+                # workaround for 5.20.0 or 5.20.1 https://github.com/kazeburo/Kossy/pull/10
+                my %args = map { $_ => Encode::decode_utf8($args->{$_}) } keys %$args;
+                $c->args(\%args);
+            } else {
+                $c->args({%$args});
+            }
             my $app = sub {
                 my ($self, $c) = @_;
                 my $response;
