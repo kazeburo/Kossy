@@ -41,7 +41,8 @@ $app = sub {
 
     my $req = Kossy::Request->new(shift);
 
-    is $req->cookies->{Foo}, 'Bar';
+    # disallow "," as a delimiter (from Cookie-Baker-0.08)
+    is $req->cookies->{Foo}, 'Bar, Bar=Baz';
     is $warn, 0;
 
     $req->new_response(200)->finalize;
@@ -50,7 +51,7 @@ $app = sub {
 test_psgi $app, sub {
     my $cb  = shift;
     my $req = HTTP::Request->new(GET => "/");
-    $req->header(Cookie => 'Foo=Bar,; Bar=Baz;');
+    $req->header(Cookie => 'Foo=Bar, Bar=Baz;');
     $cb->($req);
 };
 

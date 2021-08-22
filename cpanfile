@@ -24,8 +24,8 @@ requires 'HTTP::Headers::Fast'               => '0.19';
 requires 'WWW::Form::UrlEncoded'             => '0.19';
 requires 'WWW::Form::UrlEncoded::XS'         => '0.19';
 requires 'HTTP::Entity::Parser'              => '0.12';
-requires 'Cookie::Baker'                     => '0.03'; 
-requires 'Cookie::Baker::XS'                 => '0.03';
+requires 'Cookie::Baker'                     => '0.08';
+requires 'Cookie::Baker::XS'                 => '0.08';
 
 on test => sub {
     requires 'Test::More'                    => '0.98';
