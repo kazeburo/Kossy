@@ -75,7 +75,7 @@ sub render_json {
 
     # defense from JSON hijacking
     # Copy from Amon2::Plugin::Web::JSON
-    if ( exists $self->req->env->{'HTTP_X_REQUESTED_WITH'} && 
+    if ( exists $self->req->env->{'HTTP_X_REQUESTED_WITH'} &&
          ($self->req->env->{'HTTP_USER_AGENT'}||'') =~ /android/i &&
          exists $self->req->env->{'HTTP_COOKIE'} &&
          ($self->req->method||'GET') eq 'GET'
@@ -86,15 +86,11 @@ sub render_json {
     my $body = $_JSON->encode($obj);
     $body = $self->escape_json($body);
 
-    if ( ( $self->req->env->{'HTTP_USER_AGENT'} || '' ) =~ m/Safari/ ) {
-        $body = "\xEF\xBB\xBF" . $body;
-    }
-
     $self->res->status( 200 );
     $self->res->content_type('application/json; charset=UTF-8');
     $self->res->header( 'X-Content-Type-Options' => 'nosniff' ); # defense from XSS
     $self->res->body( $body );
-    $self->res;    
+    $self->res;
 }
 
 
