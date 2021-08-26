@@ -23,7 +23,7 @@ use Kossy::Request;
 use Kossy::Response;
 use HTTP::Headers::Fast;
 
-our $VERSION = '0.40';
+our $VERSION = '0.50';
 our @EXPORT = qw/new root_dir psgi build_app _router _connect get post router filter _wrap_filter/;
 
 our $XSLATE_CACHE = 1;

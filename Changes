@@ -2,6 +2,12 @@ Revision history for Perl extension Kossy
 
 {{$NEXT}}
 
+0.50 2021-08-26T13:49:56Z
+
+        - add halt methods (Thank you kfly8)
+        - fix cookie tests (Thank you kfly8)
+        - remove BOM from json (Thank you kfly8)
+
 0.40 2016-07-19T15:03:36Z
 
         - Fix multibyte path handling (Thanks songmu)

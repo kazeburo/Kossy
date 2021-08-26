@@ -6,7 +6,7 @@ use HTTP::Status;
 use Text::Xslate qw/html_escape/;
 use Kossy::Response;
 
-our $VERSION = '0.40';
+our $VERSION = '0.50';
 
 sub new {
     my $class = shift;
