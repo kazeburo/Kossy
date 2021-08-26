@@ -46,6 +46,20 @@ sub halt {
     die Kossy::Exception->new(@_);
 }
 
+sub halt_text {
+    my ($self, $code, $message) = @_;
+    $self->res->content_type('text/plain');
+    $self->res->body($message);
+    die Kossy::Exception->new($code, response => $self->res);
+}
+
+sub halt_no_content {
+    my ($self, $code) = @_;
+    $self->res->headers->remove_content_headers;
+    $self->res->content_length(0);
+    die Kossy::Exception->new($code, response => $self->res);
+}
+
 sub redirect {
     my $self = shift;
     $self->res->redirect(@_);
