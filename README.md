@@ -40,7 +40,7 @@ Kossy - Sinatra-ish Simple and Clear web application framework
 
 # DESCRIPTION
 
-Kossy is Sinatra-ish Simple and Clear web application framework, which is based upon [Plack](https://metacpan.org/pod/Plack), [Router::Boom](https://metacpan.org/pod/Router::Boom), [Text::Xslate](https://metacpan.org/pod/Text::Xslate) and build-in Form-Validator. That's suitable for small application and rapid development.
+Kossy is Sinatra-ish Simple and Clear web application framework, which is based upon [Plack](https://metacpan.org/pod/Plack), [Router::Boom](https://metacpan.org/pod/Router%3A%3ABoom), [Text::Xslate](https://metacpan.org/pod/Text%3A%3AXslate) and build-in Form-Validator. That's suitable for small application and rapid development.
 
 # Kossy class
 
@@ -140,7 +140,7 @@ per-request object, herds request and response
         </body>
         : }
 
-    also can use [Text::Xslate::Bridge::TT2Like](https://metacpan.org/pod/Text::Xslate::Bridge::TT2Like) and [Number::Format](https://metacpan.org/pod/Number::Format) methods in your template
+    also can use [Text::Xslate::Bridge::TT2Like](https://metacpan.org/pod/Text%3A%3AXslate%3A%3ABridge%3A%3ATT2Like) and [Number::Format](https://metacpan.org/pod/Number%3A%3AFormat) methods in your template
 
 - render\_json($args): Kossy::Response
 
@@ -148,7 +148,7 @@ per-request object, herds request and response
 
     This method escapes '<', '>', and '+' characters by "\\uXXXX" form. Browser don't detects the JSON as HTML. And also this module outputs "X-Content-Type-Options: nosniff" header for IEs.
 
-    render\_json have a JSON hijacking detection feature same as [Amon2::Plugin::Web::JSON](https://metacpan.org/pod/Amon2::Plugin::Web::JSON). This returns "403 Forbidden" response if following pattern request.
+    render\_json have a JSON hijacking detection feature same as [Amon2::Plugin::Web::JSON](https://metacpan.org/pod/Amon2%3A%3APlugin%3A%3AWeb%3A%3AJSON). This returns "403 Forbidden" response if following pattern request.
 
     - The request have 'Cookie' header.
     - The request doesn't have 'X-Requested-With' header.
@@ -169,7 +169,7 @@ This class is child class of Plack::Request, decode query/body parameters automa
 
 - validator($rule):Kossy::Validator::Result
 
-    validate parameters using [Kossy::Validator](https://metacpan.org/pod/Kossy::Validator)
+    validate parameters using [Kossy::Validator](https://metacpan.org/pod/Kossy%3A%3AValidator)
 
         my $result = $c->req->validator([
           'q' => [['NOT_NULL','query must be defined']],
@@ -254,23 +254,23 @@ This class is child class of Plack::Response
 
 # AUTHOR
 
-Masahiro Nagano <kazeburo {at} gmail.com>
+Masahiro Nagano &lt;kazeburo {at} gmail.com>
 
 # SEE ALSO
 
 Kossy is small waf, that has only 400 lines code. so easy to reading framework code and customize it. Sinatra-ish router, build-in templating, validators and zero-configuration features are suitable for small application and rapid development.
 
-[Amon2::Lite](https://metacpan.org/pod/Amon2::Lite)
+[Amon2::Lite](https://metacpan.org/pod/Amon2%3A%3ALite)
 
-[Mojolicious::Lite](https://metacpan.org/pod/Mojolicious::Lite)
+[Mojolicious::Lite](https://metacpan.org/pod/Mojolicious%3A%3ALite)
 
 [Dancer](https://metacpan.org/pod/Dancer)
 
-[Kossy::Validator](https://metacpan.org/pod/Kossy::Validator)
+[Kossy::Validator](https://metacpan.org/pod/Kossy%3A%3AValidator)
 
 # LICENSE of HTTP::Headers::Fast
 
-Kossy::Headers uses [HTTP::Headers::Fast](https://metacpan.org/pod/HTTP::Headers::Fast) code. Here is LICENSE of HTTP::Headers::Fast
+Kossy::Headers uses [HTTP::Headers::Fast](https://metacpan.org/pod/HTTP%3A%3AHeaders%3A%3AFast) code. Here is LICENSE of HTTP::Headers::Fast
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
