@@ -5,11 +5,14 @@ use Test::More;
 use Kossy::Connection;
 use Plack::Request;
 use Plack::Response;
+use JSON qw//;
 
 my $env = {};
+my $json_serializer = JSON->new();
 my $c = Kossy::Connection->new(
     req => Plack::Request->new($env),
     res => Plack::Response->new,
+    json_serializer => $json_serializer,
 );
 
 subtest 'default case' => sub {
@@ -41,4 +44,24 @@ subtest 'json hijack' => sub {
     };
 };
 
+subtest 'customize json_serializer' => sub {
+    my $json_serializer = MyJSONSerializer->new;
+    $c->json_serializer($json_serializer);
+
+    my $res = $c->render_json("foo", "bar", "baz");
+    is $res->body, 'foo-bar-baz';
+};
+
 done_testing;
+
+package MyJSONSerializer;
+
+sub new {
+    my $class = shift;
+    return bless {}, $class;
+}
+
+sub encode {
+    my $self = shift;
+    join '-', @_;
+}

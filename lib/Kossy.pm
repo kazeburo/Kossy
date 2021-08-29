@@ -585,12 +585,14 @@ changes the JSON serializer:
     use Cpanel::JSON::XS;
     use Cpanel::JSON::XS::Type;
 
-    $Kossy::JSON_SERIALIZER = Cpanel::JSON::XS->new()->allow_blessed(1)->convert_blessed(1)->ascii(0);
+    local $Kossy::JSON_SERIALIZER = Cpanel::JSON::XS->new()->allow_blessed(1)->convert_blessed(1)->ascii(0);
 
     get '/' => sub {
         my ($self, $c) = @_;
         return $c->render_json({ a => '234' }, { a => JSON_TYPE_INT });
     };
+
+    my $app = __PACKAGE__->psgi;
 
 =back
 
