@@ -88,7 +88,7 @@ sub render_json {
 
     # defense from JSON hijacking
     # Copy from Amon2::Plugin::Web::JSON
-    if ( exists $self->req->env->{'HTTP_X_REQUESTED_WITH'} &&
+    if ( !exists $self->req->env->{'HTTP_X_REQUESTED_WITH'} &&
          ($self->req->env->{'HTTP_USER_AGENT'}||'') =~ /android/i &&
          exists $self->req->env->{'HTTP_COOKIE'} &&
          ($self->req->method||'GET') eq 'GET'
