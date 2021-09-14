@@ -4,13 +4,11 @@ use strict;
 use warnings;
 use Class::Accessor::Lite (
     new => 1,
-    rw => [qw/req res stash args tx debug/]
+    rw => [qw/req res stash args tx debug json_serializer/]
 );
-use JSON qw//;
 use Kossy::Exception;
 
 our $VERSION = '0.50';
-my $_JSON = JSON->new()->allow_blessed(1)->convert_blessed(1)->ascii(1);
 
 # for IE7 JSON venularity.
 # see http://www.atmarkit.co.jp/fcoding/articles/webapp/05/webapp05a.html
@@ -20,12 +18,14 @@ my %_ESCAPE = (
     '<' => '\\u003c', # do not eval as HTML
     '>' => '\\u003e', # ditto.
 );
+
 sub escape {
     my $self = shift;
     my $body = shift;
     $body =~ s!([+<>])!$_ESCAPE{$1}!g;
     return qq("$body");
 }
+
 sub escape_json {
     my $self = shift;
     my $body = shift;
@@ -85,7 +85,6 @@ sub render {
 
 sub render_json {
     my $self = shift;
-    my $obj = shift;
 
     # defense from JSON hijacking
     # Copy from Amon2::Plugin::Web::JSON
@@ -97,7 +96,7 @@ sub render_json {
         $self->halt(403,"Your request is maybe JSON hijacking.\nIf you are not a attacker, please add 'X-Requested-With' header to each request.");
     }
 
-    my $body = $_JSON->encode($obj);
+    my $body = $self->json_serializer->encode(@_);
     $body = $self->escape_json($body);
 
     $self->res->status( 200 );

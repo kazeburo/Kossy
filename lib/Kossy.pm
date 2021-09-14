@@ -9,6 +9,8 @@ use Cwd qw//;
 use File::Basename qw//;
 use Text::Xslate;
 use HTML::FillInForm::Lite qw//;
+use JSON qw//;
+use Scalar::Util qw//;
 use Try::Tiny;
 use Encode;
 use Router::Boom;
@@ -29,6 +31,7 @@ our @EXPORT = qw/new root_dir psgi build_app _router _connect get post router fi
 our $XSLATE_CACHE = 1;
 our $XSLATE_CACHE_DIR;
 our $SECURITY_HEADER = 1;
+our $JSON_SERIALIZER;
 
 # cache underscore translation
 HTTP::Headers::Fast::_standardize_field_name('X-Frame-Options');
@@ -74,29 +77,16 @@ sub build_app {
     #router
     my $router = Router::Boom->new;
     $router->add($_ => $self->_router->{$_} ) for keys %{$self->_router};
-    my $xslate_cache_local = $XSLATE_CACHE;
-    my $xslate_cache_dir_local = $XSLATE_CACHE_DIR;
     my $security_header_local = $SECURITY_HEADER;
     my %match_cache;
 
-    #xslate
-    my $fif = HTML::FillInForm::Lite->new();
-    my $tx = Text::Xslate->new(
-        path => [ $self->root_dir . '/views' ],
-        input_layer => ':utf8',
-        module => ['Text::Xslate::Bridge::TT2Like','Number::Format' => [':subs']],
-        function => {
-            fillinform => sub {
-                my $q = shift;
-                return sub {
-                    my ($html) = @_;
-                    return Text::Xslate::mark_raw( $fif->fill( \$html, $q ) );
-                }
-            }
-        },
-        cache => $xslate_cache_local,
-        defined $xslate_cache_dir_local ? ( cache_dir => $xslate_cache_dir_local ) : (),
+    my $tx = __PACKAGE__->_build_text_xslate(
+        root_dir  => $self->root_dir,
+        cache     => $XSLATE_CACHE,
+        cache_dir => $XSLATE_CACHE_DIR,
     );
+
+    my $json_serializer = __PACKAGE__->_build_json_serializer();
 
     sub {
         my $env = shift;
@@ -111,6 +101,7 @@ sub build_app {
                 req => Kossy::Request->new($env),
                 res => Kossy::Response->new(200, $header),
                 stash => {},
+                json_serializer => $json_serializer,
             });
             my $method = uc($env->{REQUEST_METHOD});
             my $cache_key = $method . '-' . $env->{PATH_INFO};
@@ -186,15 +177,54 @@ sub build_app {
     };
 }
 
+sub _build_text_xslate {
+    my ($class, %args) = @_;
+    my ($root_dir, $cache, $cache_dir) = @args{qw/root_dir cache cache_dir/};
+
+    my $fif = HTML::FillInForm::Lite->new();
+    my $tx = Text::Xslate->new(
+        path => [ $root_dir . '/views' ],
+        input_layer => ':utf8',
+        module => ['Text::Xslate::Bridge::TT2Like','Number::Format' => [':subs']],
+        function => {
+            fillinform => sub {
+                my $q = shift;
+                return sub {
+                    my ($html) = @_;
+                    return Text::Xslate::mark_raw( $fif->fill( \$html, $q ) );
+                }
+            }
+        },
+        cache => $cache,
+        defined $cache_dir ? ( cache_dir => $cache_dir ) : (),
+    );
+    return $tx
+}
+
+sub _build_json_serializer {
+    my $class = shift;
+
+    if (defined $JSON_SERIALIZER) {
+        if (Scalar::Util::blessed($JSON_SERIALIZER) && $JSON_SERIALIZER->can('encode')) {
+            return $JSON_SERIALIZER
+        }
+        else {
+            Carp::croak '$Kossy::JSON_SERIALIZER must have `encode` method';
+        }
+    }
+
+    # default case
+    return JSON->new()->allow_blessed(1)->convert_blessed(1)->ascii(1);
+}
 
 
 my $_ROUTER={};
 sub _router {
     my $klass = shift;
-    my $class = ref $klass ? ref $klass : $klass; 
+    my $class = ref $klass ? ref $klass : $klass;
     if ( !$_ROUTER->{$class} ) {
         $_ROUTER->{$class} = {};
-    }    
+    }
     $_ROUTER->{$class};
 }
 
@@ -544,9 +574,25 @@ If disabled, Kossy does not set X-Frame-Options and X-XSS-Protection. enabled by
   local $Kossy::SECURITY_HEADER = 0;
   my $app = MyApp::Web->psgi;
 
-Can not change $Kossy::SECURITY_HEADER in your WebApp. It's need to set at build time. 
+Can not change $Kossy::SECURITY_HEADER in your WebApp. It's need to set at build time.
 
 This is useful for the benchmark :-)
+
+=item $JSON_SERIALIZER
+
+changes the JSON serializer:
+
+    use Cpanel::JSON::XS;
+    use Cpanel::JSON::XS::Type;
+
+    local $Kossy::JSON_SERIALIZER = Cpanel::JSON::XS->new()->allow_blessed(1)->convert_blessed(1)->ascii(0);
+
+    get '/' => sub {
+        my ($self, $c) = @_;
+        return $c->render_json({ a => '234' }, { a => JSON_TYPE_INT });
+    };
+
+    my $app = __PACKAGE__->psgi;
 
 =back
 
