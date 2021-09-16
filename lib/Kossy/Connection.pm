@@ -8,7 +8,7 @@ use Class::Accessor::Lite (
 );
 use Kossy::Exception;
 
-our $VERSION = '0.50';
+our $VERSION = '0.60';
 
 # for IE7 JSON venularity.
 # see http://www.atmarkit.co.jp/fcoding/articles/webapp/05/webapp05a.html
