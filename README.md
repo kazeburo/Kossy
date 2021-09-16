@@ -248,9 +248,25 @@ This class is child class of Plack::Response
         local $Kossy::SECURITY_HEADER = 0;
         my $app = MyApp::Web->psgi;
 
-    Can not change $Kossy::SECURITY\_HEADER in your WebApp. It's need to set at build time. 
+    Can not change $Kossy::SECURITY\_HEADER in your WebApp. It's need to set at build time.
 
     This is useful for the benchmark :-)
+
+- $JSON\_SERIALIZER
+
+    changes the JSON serializer:
+
+        use Cpanel::JSON::XS;
+        use Cpanel::JSON::XS::Type;
+
+        local $Kossy::JSON_SERIALIZER = Cpanel::JSON::XS->new()->allow_blessed(1)->convert_blessed(1)->ascii(0);
+
+        get '/' => sub {
+            my ($self, $c) = @_;
+            return $c->render_json({ a => '234' }, { a => JSON_TYPE_INT });
+        };
+
+        my $app = __PACKAGE__->psgi;
 
 # AUTHOR
 
