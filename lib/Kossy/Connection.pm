@@ -7,6 +7,7 @@ use Class::Accessor::Lite (
     rw => [qw/req res stash args tx debug json_serializer/]
 );
 use Kossy::Exception;
+use Plack::Session;
 
 our $VERSION = '0.60';
 
@@ -39,6 +40,14 @@ sub escape_json {
 
 sub env {
     $_[0]->{req}->env;
+}
+
+sub session {
+    my $self = shift;
+    if (!exists $self->{session}) {
+        $self->{session} = Plack::Session->new($self->env);
+    }
+    return $self->{session}
 }
 
 sub halt {

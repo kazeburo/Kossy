@@ -4,6 +4,7 @@ requires 'Scalar::Util';
 requires 'Plack'                             => '1.0029';
 requires 'Plack::Middleware::Static';
 requires 'Plack::Middleware::ReverseProxy';
+requires 'Plack::Middleware::Session';
 requires 'Router::Boom'                      => '1.01';
 requires 'Cwd';
 requires 'File::Basename';
@@ -29,6 +30,9 @@ requires 'Cookie::Baker::XS'                 => '0.08';
 
 on test => sub {
     requires 'Test::More'                    => '0.98';
+    requires 'Test::Requires'                => '0.06';
+
+    suggests 'Test::WWW::Mechanize::PSGI';
 };
 
 
