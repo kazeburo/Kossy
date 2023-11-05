@@ -69,7 +69,7 @@
             "WWW::Form::UrlEncoded" : "0.19",
             "WWW::Form::UrlEncoded::XS" : "0.19",
             "parent" : "0",
-            "perl" : "5.008004"
+            "perl" : "5.014004"
          }
       },
       "test" : {
