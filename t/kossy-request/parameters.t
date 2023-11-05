@@ -36,7 +36,7 @@ sub run_test {
         };
     }
 
-    # Run tests with JSON parser 
+    # Run tests with JSON parser
     #   when Content-Type is application/json, www-form-urlencoded or multipart/form-data
     subtest 'json_parser' => sub {
         my $parse_json_app = sub {
@@ -119,8 +119,6 @@ subtest 'When POST JSON request with parameter values are array' => sub {
     $request->header('Content-Type' => 'application/json; charset=utf-8');
     $request->header('Content-Length' => length $encocded_json);
     $request->content($encocded_json);
-
-    local $TODO = 'array value is not working';
 
     run_test($request,
         { q => ['123', '456'] },
