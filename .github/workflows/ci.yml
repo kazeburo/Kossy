@@ -41,5 +41,5 @@ jobs:
 
     - name: Run test
       run: |
-        prove -Ilib -lv t
+        prove -Ilib -lv -r t
 
