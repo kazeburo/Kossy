@@ -7,7 +7,7 @@ use Encode;
 use HTTP::Headers::Fast;
 use Cookie::Baker;
 
-our $VERSION = '0.60';
+our $VERSION = '0.61';
 
 our $DIRECT;
 our $SECURITY_HEADER = 1;

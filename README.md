@@ -7,16 +7,16 @@ Kossy - Sinatra-ish Simple and Clear web application framework
     % kossy-setup MyApp
     % cd MyApp
     % plackup app.psgi
-    
+
     ## lib/MyApp/Web.pm
-    
+
     use Kossy;
-    
+
     get '/' => sub {
         my ( $self, $c )  = @_;
         $c->render('index.tx', { greeting => "Hello!" });
     };
-    
+
     get '/json' => sub {
         my ( $self, $c )  = @_;
         my $result = $c->req->validator([
@@ -29,9 +29,9 @@ Kossy - Sinatra-ish Simple and Clear web application framework
         ]);
         $c->render_json({ greeting => $result->valid->get('q') });
     };
-    
+
     1;
-    
+
     ## views/index.tx
     : cascade base
     : around content -> {
@@ -86,7 +86,7 @@ Kossy exports some methods to building application
             my ( $self:Kossy, $c:Kossy::Connection )  = @_;
             $c->render('index.tx', { greeting => "Hello!" });
         };
-        
+
         get '/json' => sub {
             my ( $self:Kossy, $c:Kossy::Connection )  = @_;
             $c->render_json({ greeting => "Hello!" });
@@ -165,7 +165,7 @@ This class is child class of Plack::Request, decode query/body parameters automa
 
     build absolute URI with path and $args
 
-        my $uri = $c->req->uri_for('/login',[ arg => 'Hello']);  
+        my $uri = $c->req->uri_for('/login',[ arg => 'Hello']);
 
 - validator($rule):Kossy::Validator::Result
 
@@ -199,7 +199,7 @@ This class is child class of Plack::Response
 
 - X-Frame-Options
 
-    By default, Kossy outputs "X-Frame-Options: DENY". You can change this header 
+    By default, Kossy outputs "X-Frame-Options: DENY". You can change this header
 
         get '/iframe' => sub {
             my ($self, $c) = @_;
