@@ -2,7 +2,7 @@ package Kossy;
 
 use strict;
 use warnings;
-use 5.008004;
+use 5.014004;
 use utf8;
 use Carp qw//;
 use Cwd qw//;
@@ -114,7 +114,7 @@ sub build_app {
                 if ( !@match ) {
                     $c->halt(404);
                 }
-                
+
                 if ( !exists $match[0]->{$method}) {
                     $c->halt(405);
                 }
@@ -127,7 +127,7 @@ sub build_app {
                 }
                 $c->halt(400,'unexpected character in request');
             };
-            
+
             my $code = $match->{__action__};
             my $filters = $match->{__filter__} || [];
             if ( $] == 5.020000 || $] == 5.020100 ) {
@@ -161,7 +161,7 @@ sub build_app {
                 }
                 $response;
             };
-            
+
             for my $filter ( reverse @$filters ) {
                 $app = $self->_wrap_filter($filter,$app);
             }
@@ -264,7 +264,7 @@ sub filter {
     my $class = caller;
     if ( !$_FILTER->{$class} ) {
         $_FILTER->{$class} = {};
-    }    
+    }
     if ( @_ ) {
         $_FILTER->{$class}->{$_[0]} = $_[1];
     }
@@ -273,13 +273,13 @@ sub filter {
 
 sub _wrap_filter {
     my $klass = shift;
-    my $class = ref $klass ? ref $klass : $klass; 
+    my $class = ref $klass ? ref $klass : $klass;
     if ( !$_FILTER->{$class} ) {
         $_FILTER->{$class} = {};
     }
     my ($filter,$app) = @_;
     my $filter_subref = $_FILTER->{$class}->{$filter};
-    Carp::croak sprintf("Filter:%s is not exists", $filter) unless $filter_subref;    
+    Carp::croak sprintf("Filter:%s is not exists", $filter) unless $filter_subref;
     return $filter_subref->($app);
 }
 
@@ -296,16 +296,16 @@ Kossy - Sinatra-ish Simple and Clear web application framework
   % kossy-setup MyApp
   % cd MyApp
   % plackup app.psgi
-  
+
   ## lib/MyApp/Web.pm
-  
+
   use Kossy;
-  
+
   get '/' => sub {
       my ( $self, $c )  = @_;
       $c->render('index.tx', { greeting => "Hello!" });
   };
-  
+
   get '/json' => sub {
       my ( $self, $c )  = @_;
       my $result = $c->req->validator([
@@ -318,9 +318,9 @@ Kossy - Sinatra-ish Simple and Clear web application framework
       ]);
       $c->render_json({ greeting => $result->valid->get('q') });
   };
-  
+
   1;
-  
+
   ## views/index.tx
   : cascade base
   : around content -> {
@@ -386,7 +386,7 @@ setup router and dispatch code
       my ( $self:Kossy, $c:Kossy::Connection )  = @_;
       $c->render('index.tx', { greeting => "Hello!" });
   };
-  
+
   get '/json' => sub {
       my ( $self:Kossy, $c:Kossy::Connection )  = @_;
       $c->render_json({ greeting => "Hello!" });
@@ -484,7 +484,7 @@ This class is child class of Plack::Request, decode query/body parameters automa
 
 build absolute URI with path and $args
 
-  my $uri = $c->req->uri_for('/login',[ arg => 'Hello']);  
+  my $uri = $c->req->uri_for('/login',[ arg => 'Hello']);
 
 =item validator($rule):Kossy::Validator::Result
 
@@ -525,7 +525,7 @@ This class is child class of Plack::Response
 
 =item X-Frame-Options
 
-By default, Kossy outputs "X-Frame-Options: DENY". You can change this header 
+By default, Kossy outputs "X-Frame-Options: DENY". You can change this header
 
   get '/iframe' => sub {
       my ($self, $c) = @_;

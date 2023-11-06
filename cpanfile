@@ -1,4 +1,4 @@
-requires 'perl'                              => '5.008004';
+requires 'perl'                              => '5.014004';
 requires 'parent';
 requires 'Scalar::Util';
 requires 'Plack'                             => '1.0029';
