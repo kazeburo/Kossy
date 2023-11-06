@@ -116,13 +116,18 @@ sub uploads {
 
 sub body_parameters {
     my ($self) = @_;
-    $self->env->{'kossy.request.body'} ||= 
-        Hash::MultiValue->new(map { Encode::decode_utf8($_) } @{$self->_body_parameters()});
+    $self->env->{'kossy.request.body'} ||= do {
+        my @body_parameters = $self->env->{'kossy.request.parse_json_body'}
+                            ? $self->body_parameters_raw->flatten
+                            : @{$self->_body_parameters()};
+
+        Hash::MultiValue->new(map { Encode::decode_utf8($_) } @body_parameters);
+    }
 }
 
 sub query_parameters {
     my ($self) = @_;
-    $self->env->{'kossy.request.query'} ||= 
+    $self->env->{'kossy.request.query'} ||=
         Hash::MultiValue->new(map { Encode::decode_utf8($_) } @{$self->_query_parameters()});
 }
 
@@ -131,7 +136,7 @@ sub parameters {
     $self->env->{'kossy.request.merged'} ||= do {
         Hash::MultiValue->new(
             $self->query_parameters->flatten,
-            $self->body_parameters->flatten,            
+            $self->body_parameters->flatten,
         );
     };
 }
@@ -141,12 +146,12 @@ sub _body_parameters {
     unless ($self->env->{'kossy.request.body_parameters'}) {
         $self->_parse_request_body;
     }
-    return $self->env->{'kossy.request.body_parameters'};    
+    return $self->env->{'kossy.request.body_parameters'};
 }
 sub _query_parameters {
     my $self = shift;
     unless ( $self->env->{'kossy.request.query_parameters'} ) {
-        $self->env->{'kossy.request.query_parameters'} = 
+        $self->env->{'kossy.request.query_parameters'} =
             parse_urlencoded_arrayref($self->env->{'QUERY_STRING'});
     }
     return $self->env->{'kossy.request.query_parameters'};
@@ -155,7 +160,9 @@ sub _query_parameters {
 sub body_parameters_raw {
     my $self = shift;
     unless ($self->env->{'plack.request.body'}) {
-        $self->env->{'plack.request.body'} = Hash::MultiValue->new(@{$self->_body_parameters});
+        $self->env->{'plack.request.body'} = $self->env->{'kossy.request.parse_json_body'}
+                                          ? Hash::MultiValue->from_mixed(@{$self->_body_parameters})
+                                          : Hash::MultiValue->new(@{$self->_body_parameters});
     }
     return $self->env->{'plack.request.body'};
 }
