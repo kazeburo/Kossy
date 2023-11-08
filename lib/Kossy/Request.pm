@@ -78,6 +78,12 @@ $json_parser->register(
     'HTTP::Entity::Parser::JSON'
 );
 
+my $json_only_parser = HTTP::Entity::Parser->new();
+$json_only_parser->register(
+    'application/json',
+    'HTTP::Entity::Parser::JSON'
+);
+
 sub _build_request_body_parser {
     my $self = shift;
     if ( $self->env->{'kossy.request.parse_json_body'} ) {
@@ -118,6 +124,13 @@ sub body_parameters {
     my ($self) = @_;
     $self->env->{'kossy.request.body'} ||= do {
         Hash::MultiValue->new(map { _decode_recursively($_) } @{$self->_body_parameters()});
+    }
+}
+
+sub json_parameters {
+    my ($self) = @_;
+    $self->env->{'kossy.request.json_body'} ||= do {
+        Hash::MultiValue->new(map { _decode_recursively($_) } @{$self->_json_parameters()});
     }
 }
 
@@ -162,6 +175,16 @@ sub _body_parameters {
     }
     return $self->env->{'kossy.request.body_parameters'};
 }
+
+sub _json_parameters {
+    my $self = shift;
+    unless ($self->env->{'kossy.request.json_parameters'}) {
+        my ($params) = $json_only_parser->parse($self->env);
+        $self->env->{'kossy.request.json_parameters'} = $params;
+    }
+    return $self->env->{'kossy.request.json_parameters'};
+}
+
 sub _query_parameters {
     my $self = shift;
     unless ( $self->env->{'kossy.request.query_parameters'} ) {

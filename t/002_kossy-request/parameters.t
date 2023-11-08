@@ -181,4 +181,78 @@ subtest 'When POST JSON request with parameter value is complex structure' => su
     };
 };
 
+subtest 'Use json_parameters' => sub {
+
+    my $run_test = sub {
+        my $request_data = shift;
+
+        # JSON parameters are expected to match $request_data
+        my $expected = $request_data;
+
+        my $app = sub {
+            my $env = shift;
+            my $req = Kossy::Request->new($env);
+
+            is_deeply $req->json_parameters, $expected;
+
+            $req->new_response(200)->finalize;
+        };
+
+        # NOTE: json_parameters not need to set kossy.request.parse_json_body
+        test_psgi $app, sub {
+            my $cb = shift;
+
+            my $request = POST "/";
+
+            my $encocded_json = encode_json($request_data);
+            $request->header('Content-Type' => 'application/json; charset=utf-8');
+            $request->header('Content-Length' => length $encocded_json);
+            $request->content($encocded_json);
+
+            $cb->($request);
+        };
+    };
+
+    subtest 'Empty array' => sub {
+        $run_test->({ b => [] });
+    };
+
+    subtest 'One element array' => sub {
+        $run_test->({ b => ['hello'] });
+    };
+
+    subtest 'Multi elements array' => sub {
+        $run_test->({ b => ['hello', 'world'] });
+    };
+
+    subtest 'Array with undef' => sub {
+        $run_test->({ b => ['hello', undef] });
+    };
+
+    subtest 'Empty hashref' => sub {
+        $run_test->({ b => { } });
+    };
+
+    subtest 'One element hashref' => sub {
+        $run_test->({ b => { 'foo' => 1 } });
+    };
+
+    subtest 'Multi elements hashref' => sub {
+        $run_test->({ b => { 'foo' => 1, 'bar' => 2 } });
+    };
+
+    subtest 'HashRef with undef' => sub {
+        $run_test->({ b => { 'hello' => undef } });
+    };
+
+    subtest 'Complex case' => sub {
+        $run_test->({
+            b1 => 'hello',
+            b2 => [ 'hono', '🔥' ],
+            b3 => { 'foo' => 1, 'bar' => 2, 'boo' => '👍' },
+            b4 => undef,
+        });
+    };
+};
+
 done_testing;
