@@ -117,11 +117,25 @@ sub uploads {
 sub body_parameters {
     my ($self) = @_;
     $self->env->{'kossy.request.body'} ||= do {
-        my @body_parameters = $self->env->{'kossy.request.parse_json_body'}
-                            ? $self->body_parameters_raw->flatten
-                            : @{$self->_body_parameters()};
+        Hash::MultiValue->new(map { _decode_recursively($_) } @{$self->_body_parameters()});
+    }
+}
 
-        Hash::MultiValue->new(map { Encode::decode_utf8($_) } @body_parameters);
+sub _decode_recursively {
+    my $v = shift;
+    if (my $r = ref $v) {
+        if ($r eq 'ARRAY') {
+            return [ map { _decode_recursively($_) } @$v ];
+        }
+        elsif ($r eq 'HASH') {
+            return { map { Encode::decode_utf8($_) => _decode_recursively($v->{$_}) } keys %$v };
+        }
+        else {
+            die 'Cannot decode ' . $v;
+        }
+    }
+    else {
+        return Encode::decode_utf8($v);
     }
 }
 
@@ -160,9 +174,7 @@ sub _query_parameters {
 sub body_parameters_raw {
     my $self = shift;
     unless ($self->env->{'plack.request.body'}) {
-        $self->env->{'plack.request.body'} = $self->env->{'kossy.request.parse_json_body'}
-                                          ? Hash::MultiValue->from_mixed(@{$self->_body_parameters})
-                                          : Hash::MultiValue->new(@{$self->_body_parameters});
+        $self->env->{'plack.request.body'} = Hash::MultiValue->new(@{$self->_body_parameters});
     }
     return $self->env->{'plack.request.body'};
 }

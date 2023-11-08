@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+use utf8;
 
 use Test::More;
 use Kossy;
@@ -90,12 +91,20 @@ subtest 'When POST request with parameter values are multi' => sub {
 };
 
 subtest 'When POST request with parameter values are array' => sub {
-    my $request = POST "/?q=123&q=456", { b => [ "hello", "world" ] };
+    subtest 'If requested an empty array, then the body parameters is empty.' => sub {
+        my $request = POST "/?q=123", { b => [] };
+        run_test($request, { q => '123' }, {} );
+    };
 
-    run_test($request,
-        { q => ['123', '456'] },
-        { b => ['hello', 'world'] }
-    );
+    subtest 'If requested an one element array, then the body parameters is single value.' => sub {
+        my $request = POST "/?q=123", { b => ['hello'] };
+        run_test($request, { q => '123' }, { b => 'hello' } );
+    };
+
+    subtest 'If requested an multi elements array, then the body parameters is array.' => sub {
+        my $request = POST "/?q=123", { b => ['hello', 'world'] };
+        run_test($request, { q => '123' }, { b => ['hello', 'world'] } );
+    };
 };
 
 subtest 'When POST JSON request with parameter values are single' => sub {
@@ -112,18 +121,64 @@ subtest 'When POST JSON request with parameter values are single' => sub {
     );
 };
 
-subtest 'When POST JSON request with parameter values are array' => sub {
-    my $request = POST "/?q=123&q=456";
+subtest 'When POST JSON request with parameter value is complex structure' => sub {
 
-    my $encocded_json = encode_json({ b => ['hello', 'world'] });
-    $request->header('Content-Type' => 'application/json; charset=utf-8');
-    $request->header('Content-Length' => length $encocded_json);
-    $request->content($encocded_json);
+    my $run_test = sub {
+        my ($request_data) = @_;
 
-    run_test($request,
-        { q => ['123', '456'] },
-        { b => ['hello', 'world'] }
-    );
+        # body parameters are expected to match $request_data
+        my $expected = $request_data;
+
+        my $request = POST "/?q=123";
+
+        my $encocded_json = encode_json($request_data);
+        $request->header('Content-Type' => 'application/json; charset=utf-8');
+        $request->header('Content-Length' => length $encocded_json);
+        $request->content($encocded_json);
+
+        run_test($request, { q => '123' }, $expected);
+    };
+
+    subtest 'Empty array' => sub {
+        $run_test->({ b => [] });
+    };
+
+    subtest 'One element array' => sub {
+        $run_test->({ b => ['hello'] });
+    };
+
+    subtest 'Multi elements array' => sub {
+        $run_test->({ b => ['hello', 'world'] });
+    };
+
+    subtest 'Array with undef' => sub {
+        $run_test->({ b => ['hello', undef] });
+    };
+
+    subtest 'Empty hashref' => sub {
+        $run_test->({ b => { } });
+    };
+
+    subtest 'One element hashref' => sub {
+        $run_test->({ b => { 'foo' => 1 } });
+    };
+
+    subtest 'Multi elements hashref' => sub {
+        $run_test->({ b => { 'foo' => 1, 'bar' => 2 } });
+    };
+
+    subtest 'HashRef with undef' => sub {
+        $run_test->({ b => { 'hello' => undef } });
+    };
+
+    subtest 'Complex case' => sub {
+        $run_test->({
+            b1 => 'hello',
+            b2 => [ 'hono', '🔥' ],
+            b3 => { 'foo' => 1, 'bar' => 2, 'boo' => '👍' },
+            b4 => undef,
+        });
+    };
 };
 
 done_testing;
