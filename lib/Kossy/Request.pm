@@ -130,7 +130,7 @@ sub body_parameters {
 sub json_parameters {
     my ($self) = @_;
     $self->env->{'kossy.request.json_body'} ||= do {
-        Hash::MultiValue->new(map { _decode_recursively($_) } @{$self->_json_parameters()});
+        +{ map { _decode_recursively($_) } @{$self->_json_parameters()} }
     }
 }
 
