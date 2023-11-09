@@ -9,67 +9,125 @@ use HTTP::Request::Common;
 use JSON qw(encode_json);
 use Encode ();
 
-my $app = sub {
-    my $env = shift;
-    my $req = Kossy::Request->new($env);
+# create a test app that parses JSON body
+sub filter_json {
+    my $app = shift;
 
-    ok Encode::is_utf8($req->query_parameters->{'q'});
-    is $req->query_parameters->{'q'}, '👍', 'The thumb up emoji is correctly decoded';
+    sub {
+        my $env = shift;
+        $env->{'kossy.request.parse_json_body'} = 1;
+        $app->($env);
+    }
+}
 
-    ok Encode::is_utf8($req->body_parameters->{'b'});
-    is $req->body_parameters->{'b'}, 'こんにちは', 'Japanese greeting is correctly decoded';
+subtest 'Decode query parameters' => sub {
+    my $app = sub {
+        my $env = shift;
+        my $req = Kossy::Request->new($env);
 
-    my @q2 = $req->query_parameters->get_all('q2');
-    ok Encode::is_utf8($_) for @q2;
-    is_deeply \@q2, ['☀️', '🌕'], 'The sun and full moon emoji are correctly decoded';
+        my $p1 = $req->query_parameters->{'p1'};
+        my @p2 = $req->query_parameters->get_all('p2');
 
-    my @b2 = $req->body_parameters->get_all('b2');
-    ok Encode::is_utf8($_) for @b2;
-    is_deeply \@b2, ['おはよう', 'こんばんは'], 'Japanese greeting are correctly decoded';
+        ok Encode::is_utf8($p1);
+        ok Encode::is_utf8($_) for @p2;
 
-    $req->new_response(200)->finalize;
-};
+        is $p1, '👍', 'The thumb up emoji is correctly decoded';
+        is_deeply \@p2, ['☀️', '🌕'], 'The sun and full moon emoji are correctly decoded';
 
-my $parse_json_app = sub {
-    my $env = shift;
-    $env->{'kossy.request.parse_json_body'} = 1;
-    $app->($env);
-};
-
-my $query = 'q=%F0%9F%91%8D&q2=%E2%98%80%EF%B8%8F&q2=%F0%9F%8C%95';
-my $body_parameters = {
-    b  => 'こんにちは',
-    b2 => ['おはよう', 'こんばんは'],
-};
-
-subtest 'default parser' => sub {
-    my $request = POST "/?$query", $body_parameters;
+        $req->new_response(200)->finalize;
+    };
 
     test_psgi $app, sub {
         my $cb = shift;
-        $cb->($request);
+        $cb->(GET "/?p1=%F0%9F%91%8D&p2=%E2%98%80%EF%B8%8F&p2=%F0%9F%8C%95");
     };
 };
 
-subtest 'json parser' => sub {
-    my $request = POST "/?$query", $body_parameters;
+subtest 'Decode body parameters' => sub {
 
-    test_psgi $parse_json_app, sub {
-        my $cb = shift;
-        $cb->($request);
+    my $app = sub {
+        my $env = shift;
+        my $req = Kossy::Request->new($env);
+
+        my $p1 = $req->body_parameters->{'p1'};
+        my @p2 = $req->body_parameters->get_all('p2');
+
+        ok Encode::is_utf8($p1);
+        ok Encode::is_utf8($_) for @p2;
+
+        is $p1, '👍', 'The thumb up emoji is correctly decoded';
+        is_deeply \@p2, ['☀️', '🌕'], 'The sun and full moon emoji are correctly decoded';
+
+        $req->new_response(200)->finalize;
+    };
+
+    subtest 'with default parser' => sub {
+        test_psgi $app, sub {
+            my $cb = shift;
+            $cb->(POST '/', {
+                p1 => '👍',
+                p2 => ['☀️', '🌕'],
+            });
+        };
+    };
+
+    subtest 'with json parser' => sub {
+        test_psgi filter_json($app), sub {
+            my $cb = shift;
+            $cb->(POST '/', {
+                p1 => '👍',
+                p2 => ['☀️', '🌕'],
+            });
+        };
     };
 };
 
-subtest 'JSON request with json parser' => sub {
-    my $request = POST "/?$query";
+subtest 'Decode JSON body parameters' => sub {
 
-    my $encocded_json = encode_json($body_parameters);
-    $request->header('Content-Type' => 'application/json; charset=utf-8');
-    $request->header('Content-Length' => length $encocded_json);
-    $request->content($encocded_json);
+    my $app = sub {
+        my $env = shift;
+        my $req = Kossy::Request->new($env);
 
-    test_psgi $parse_json_app, sub {
+        subtest 'body_parameters' => sub {
+            my $p1 = $req->body_parameters->{'p1'};
+
+            # NOTE: There is no need to use `get_all` method to get all of the array values.
+            my $p2 = $req->body_parameters->{'p2'};
+
+            ok Encode::is_utf8($p1);
+            ok Encode::is_utf8($_) for @$p2;
+
+            is $p1, '👍', 'The thumb up emoji is correctly decoded';
+            is_deeply $p2, ['☀️', '🌕'], 'The sun and full moon emoji are correctly decoded';
+        };
+
+        subtest 'json_parameters' => sub {
+            my $p1 = $req->json_parameters->{'p1'};
+            my $p2 = $req->json_parameters->{'p2'};
+
+            ok Encode::is_utf8($p1);
+            ok Encode::is_utf8($_) for @$p2;
+
+            is $p1, '👍', 'The thumb up emoji is correctly decoded';
+            is_deeply $p2, ['☀️', '🌕'], 'The sun and full moon emoji are correctly decoded';
+        };
+
+        $req->new_response(200)->finalize;
+    };
+
+    test_psgi filter_json($app), sub {
         my $cb = shift;
+
+        my $request = POST "/";
+
+        my $encocded_json = encode_json({
+            p1 => '👍',
+            p2 => ['☀️', '🌕'],
+        });
+        $request->header('Content-Type' => 'application/json; charset=utf-8');
+        $request->header('Content-Length' => length $encocded_json);
+        $request->content($encocded_json);
+
         $cb->($request);
     };
 };
