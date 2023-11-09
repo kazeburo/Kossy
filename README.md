@@ -191,6 +191,35 @@ This class is child class of Plack::Request, decode query/body parameters automa
 
     These methods are the accessor to raw values. 'raw' means the value is not decoded.
 
+- body\_parameters
+
+    Accessor to decoded body parameters. It's Hash::MultiValue object.
+
+- query\_parameters
+
+    Accessor to decoded query parameters. It's Hash::MultiValue object.
+
+- json\_parameters
+
+    Accessor to decoded JSON body parameters. It's **NOT** Hash::MultiValue object.
+
+        post '/api' => sub {
+            my ($self, $c) = @_;
+            my $foo = $c->req->json_parameters->{foo}; # bar
+        };
+
+        # requrest
+        # $ua->requrest(
+        #     HTTP::Request->new(
+        #         "POST",
+        #         "http://example.com/api",
+        #         [ "Content-Type" => 'application/json', "Content-Length" => 13 ],
+        #         '{"foo":"bar"}'
+        #     )
+        # );
+
+    NOTE: Not need to set `kossy.request.parse_json_body` to 1
+
 # Kossy::Response
 
 This class is child class of Plack::Response

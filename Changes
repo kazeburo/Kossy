@@ -2,6 +2,10 @@ Revision history for Perl extension Kossy
 
 {{$NEXT}}
 
+0.62 2023-11-09T08:56:51Z
+
+        - Fixed JSON request #21
+
 0.61 2023-11-06T14:26:54Z
 
         - Enhance Kossy::Request to support array values in JSON body params #19 Thank you kfly8
