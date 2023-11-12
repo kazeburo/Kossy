@@ -48,4 +48,44 @@ test_psgi $app, sub {
     is $cb->(POST "/")->code, 405, 'Method not allowed';
 };
 
+subtest 'filter' => sub {
+
+    {
+        package FilterApp;
+        use Kossy;
+
+        filter 'set_foo' => sub {
+            my $app = shift;
+            sub {
+                my ( $self, $c ) = @_;
+                $c->stash->{foo} = 'foo';
+                $app->($self,$c);
+            }
+        };
+
+        get '/' => ['set_foo'] => sub {
+            my ($self, $c) = @_;
+            $c->halt_text(200, 'GET / and stash.foo is ' . $c->stash->{foo})
+        };
+    }
+
+    my $app = FilterApp->psgi;
+
+    test_psgi $app, sub {
+        my $cb = shift;
+        is $cb->(GET "/")->content, 'GET / and stash.foo is foo';
+    };
+};
+
+subtest 'exception' => sub {
+    {
+        package ExceptionApp;
+        use Kossy;
+        use Test::More;
+
+        eval { get '/' => 'foo' };
+        like $@, qr/must be a CODE reference/;
+    }
+};
+
 done_testing;

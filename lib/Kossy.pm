@@ -234,7 +234,7 @@ sub _connect {
         $filter = [];
     }
     unless ( (ref $code ||'') eq 'CODE') {
-        Carp::croak "code must be CODE reference";
+        Carp::croak "\$code argument must be a CODE reference";
     }
     $class->_router->add($methods, $pattern, {
         __action__ => $code,
