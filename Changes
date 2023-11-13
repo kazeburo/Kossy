@@ -2,6 +2,10 @@ Revision history for Perl extension Kossy
 
 {{$NEXT}}
 
+0.63 2023-11-13T02:24:23Z
+
+        - Stabilize routing #22
+
 0.62 2023-11-09T08:56:51Z
 
         - Fixed JSON request #21

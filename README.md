@@ -114,7 +114,13 @@ per-request object, herds request and response
 - stash:HashRef
 - args:HashRef
 
-    Router::Simple->match result
+    path parameters captured by Router::Boom
+
+        get '/user/:id' => sub {
+            my ($self, $c) = @_;
+            my $id = $c->args->{id};
+            ...
+        };
 
 - halt(status\_code, message)
 
