@@ -4,7 +4,7 @@ requires 'Scalar::Util';
 requires 'Plack'                             => '1.0029';
 requires 'Plack::Middleware::Static';
 requires 'Plack::Middleware::ReverseProxy';
-requires 'Router::Boom'                      => '1.01';
+requires 'Router::Boom'                      => '1.03';
 requires 'Cwd';
 requires 'File::Basename';
 requires 'Text::Xslate'                      => '3.2.4';

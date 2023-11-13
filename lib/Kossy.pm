@@ -13,7 +13,7 @@ use JSON qw//;
 use Scalar::Util qw//;
 use Try::Tiny;
 use Encode;
-use Router::Boom;
+use Router::Boom::Method;
 use Class::Accessor::Lite (
     new => 0,
     rw => [qw/root_dir/]
@@ -74,9 +74,6 @@ sub psgi {
 sub build_app {
     my $self = shift;
 
-    #router
-    my $router = Router::Boom->new;
-    $router->add($_ => $self->_router->{$_} ) for keys %{$self->_router};
     my $security_header_local = $SECURITY_HEADER;
     my %match_cache;
 
@@ -110,17 +107,17 @@ sub build_app {
                     return @{$match_cache{$cache_key}};
                 }
                 my $path_info = Encode::decode_utf8( $env->{PATH_INFO},  Encode::FB_CROAK | Encode::LEAVE_SRC );
-                my @match = $router->match($path_info);
-                if ( !@match ) {
+                my ($dest, $captured, $method_not_allowed) = $self->_router->match($method, $path_info);
+                if ($method_not_allowed) {
+                    $c->halt(405);
+                }
+
+                if (!$dest) {
                     $c->halt(404);
                 }
 
-                if ( !exists $match[0]->{$method}) {
-                    $c->halt(405);
-                }
-                $match_cache{$cache_key} = [$match[0]->{$method},$match[1]]
-                    if ! scalar keys %{$match[1]};
-                return ($match[0]->{$method},$match[1]);
+                $match_cache{$cache_key} = [$dest, $captured];
+                return ($dest, $captured);
             } catch {
                 if ( ref $_ && ref $_ eq 'Kossy::Exception' ) {
                     die $_; #rethrow
@@ -223,7 +220,7 @@ sub _router {
     my $klass = shift;
     my $class = ref $klass ? ref $klass : $klass;
     if ( !$_ROUTER->{$class} ) {
-        $_ROUTER->{$class} = {};
+        $_ROUTER->{$class} = Router::Boom::Method->new;
     }
     $_ROUTER->{$class};
 }
@@ -236,12 +233,13 @@ sub _connect {
         $code = $filter;
         $filter = [];
     }
-    for my $method ( @$methods ) {
-        $class->_router->{$pattern}->{$method} = {
-            __action__ => $code,
-            __filter__ => $filter
-        };
+    unless ( (ref $code ||'') eq 'CODE') {
+        Carp::croak "\$code argument must be a CODE reference";
     }
+    $class->_router->add($methods, $pattern, {
+        __action__ => $code,
+        __filter__ => $filter
+    });
 }
 
 sub get {
@@ -421,7 +419,13 @@ per-request object, herds request and response
 
 =item args:HashRef
 
-Router::Simple->match result
+path parameters captured by Router::Boom
+
+    get '/user/:id' => sub {
+        my ($self, $c) = @_;
+        my $id = $c->args->{id};
+        ...
+    };
 
 =item halt(status_code, message)
 
